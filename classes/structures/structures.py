@@ -16,3 +16,4 @@ class Wall:
             self.color = color
             self.shape.color = color
         space.add(self.body, self.shape)
+

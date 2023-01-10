@@ -5,7 +5,10 @@ from classes.enemies.basic import BasicEnemy
 from classes.structures.structures import Wall
 from classes.player.player import Player
 
+from functions.angle import get_angle
+
 pygame.init()
+
 
 class Game:
     isRunning = True
@@ -39,6 +42,8 @@ class Game:
         "S": False
     }
 
+    mouse_angle = 0
+
     def __init__(self, width, height, fps):
         assert(type(width) == int and type(height) == int)
         self.window = pygame.display.set_mode((width, height))
@@ -47,14 +52,19 @@ class Game:
 
     def draw(self):
         self.window.fill("royalblue")
-        self.space.debug_draw(self.draw_options)
         # pygame.display.update()
-        for item in self.structures:
-            self.window.blit(item, (item.body.position.x - self.camera["x"], item.body.position.y - self.camera["y"]))
-        for item in self.enemies:
-            self.window.blit(item, (item.body.position.x - self.camera["x"], item.body.position.y - self.camera["y"]))
-        self.window.blit(self.player, (self.player.body.position.x - self.camera["x"],
-                                       self.player.body.position.y - self.camera["y"]))
+        # for item in self.structures:
+        #     self.window.blit(item, (item.body.position.x - self.camera["x"], item.body.position.y - self.camera["y"]))
+        # for item in self.enemies:
+        #     self.window.blit(item, (item.body.position.x - self.camera["x"], item.body.position.y - self.camera["y"]))
+        # self.window.blit(self.player, (self.player.body.position.x - self.camera["x"],
+        #                                self.player.body.position.y - self.camera["y"]))
+        self.space.debug_draw(self.draw_options)
+
+        self.player.update(self)
+
+
+
         pygame.display.flip()
 
     def run(self):
@@ -82,7 +92,7 @@ class Game:
                         self.inputs["W"] = False
                     if event.key == pygame.K_s:
                         self.inputs["S"] = False
-
+            self.mouse_angle = get_angle(pygame.mouse.get_pos(), self.player.body.position)
             self.player.move_player(self.inputs)
             # for item in self.enemies:
             #     item.body.position = (item.body.position.x + self.player.body.position.x - self.player_start_cord["x"],
