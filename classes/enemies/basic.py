@@ -1,8 +1,8 @@
 import pymunk
 import pymunk.pygame_util
+import pygame
 
-
-class BasicEnemy:
+class BasicEnemy():
     body = pymunk.Body()
     body.position = (300, 300)
     color = (255, 0, 0, 100)
