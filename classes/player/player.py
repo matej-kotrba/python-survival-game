@@ -31,8 +31,6 @@ class Player:
 
         space.add(self.body, self.shape)
     def move_player(self, inputs):
-        hor_speed = self.body.velocity
-        # print(self.body.position)
         if inputs["A"]:
             # self.body.position = (self.body.position.x - 5, self.body.position.y)
             self.body.apply_force_at_local_point((-2500, 0), (0, 0))
@@ -49,7 +47,7 @@ class Player:
     def update(self, game):
         game.camera["x"] = self.body.position.x
         game.camera["y"] = self.body.position.y
-        self.rect.center = self.body.position
+        self.rect.center = (game.window.get_width() / 2, game.window.get_height() / 2)
         self.image = pygame.transform.scale(self.original_image, (self.radius * 2, self.radius * 2))
         rotated_image = pygame.transform.rotate(self.image, -math.degrees(game.mouse_angle) + 180)
         new_rect = rotated_image.get_rect(center=self.rect.center)

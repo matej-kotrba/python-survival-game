@@ -4,6 +4,7 @@ import pymunk.pygame_util
 from classes.enemies.basic import BasicEnemy
 from classes.structures.structures import Wall
 from classes.player.player import Player
+from classes.weapons.pistol import Pistol
 
 from functions.angle import get_angle
 
@@ -26,14 +27,15 @@ class Game:
     }
 
     camera = {
-        "x": 0,
-        "y": 0,
+        "x": 400,
+        "y": 400,
     }
 
     player = Player(space, (player_start_cord["x"], player_start_cord["y"]))
 
     enemies = [BasicEnemy(space, 40)]
-    structures = [Wall(space, (400, 775), (800, 50), color=(105, 86, 73, 100))]
+    structures = [Wall(space, (400, 775), (800, 50))]
+    weapons = [Pistol((600, 300))]
 
     inputs = {
         "A": False,
@@ -49,7 +51,6 @@ class Game:
         self.window = pygame.display.set_mode((width, height))
         self.draw_options = pymunk.pygame_util.DrawOptions(self.window)
         self.fps = fps
-
     def draw(self):
         self.window.fill("royalblue")
         # pygame.display.update()
@@ -59,11 +60,18 @@ class Game:
         #     self.window.blit(item, (item.body.position.x - self.camera["x"], item.body.position.y - self.camera["y"]))
         # self.window.blit(self.player, (self.player.body.position.x - self.camera["x"],
         #                                self.player.body.position.y - self.camera["y"]))
-        self.space.debug_draw(self.draw_options)
+        # self.space.debug_draw(self.draw_options)
+
+        for item in self.structures:
+            item.update(self)
+
+        for item in self.weapons:
+            item.update(self)
+
+        for item in self.enemies:
+            item.update(self)
 
         self.player.update(self)
-
-
 
         pygame.display.flip()
 
@@ -92,7 +100,8 @@ class Game:
                         self.inputs["W"] = False
                     if event.key == pygame.K_s:
                         self.inputs["S"] = False
-            self.mouse_angle = get_angle(pygame.mouse.get_pos(), self.player.body.position)
+            self.mouse_angle = get_angle(pygame.mouse.get_pos(),
+                                         (self.player_start_cord["x"], self.player_start_cord["y"]))
             self.player.move_player(self.inputs)
             # for item in self.enemies:
             #     item.body.position = (item.body.position.x + self.player.body.position.x - self.player_start_cord["x"],
@@ -103,6 +112,9 @@ class Game:
             self.draw()
             self.space.step(self.dt)
             self.clock.tick(self.fps)
+
+    def get_position_by_player(self, pos):
+        return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + pos[1]
 
 
 if __name__ == "__main__":
