@@ -6,6 +6,7 @@ from classes.structures.structures import Wall
 from classes.player.player import Player
 from classes.weapons.pistol import Pistol
 from classes.inventory.inventory import Inventory
+from classes.ammo.bullet import MediumBullet
 
 from functions.angle import get_angle
 
@@ -34,9 +35,10 @@ class Game:
 
     player = Player(space, (player_start_cord["x"], player_start_cord["y"]))
 
-    enemies = [BasicEnemy(space, 40)]
+    enemies = [BasicEnemy(space, 40, (300, 300)), BasicEnemy(space, 40, (500, 300))]
     structures = [Wall(space, (400, 775), (800, 50))]
-    weapons = [Pistol((600, 300))]
+    weapons = [Pistol((600, 300)), Pistol((600, 400))]
+    projectiles = []
 
     inputs = {
         "A": False,
@@ -73,9 +75,11 @@ class Game:
         for item in self.enemies:
             item.update(self)
 
-
         self.player.update(self)
         self.player.display_item_in_hand(self, self.inventory.slots[self.inventory.selected_slot])
+
+        for item in self.projectiles:
+            item.draw(self)
 
         self.inventory.draw()
 
@@ -106,6 +110,12 @@ class Game:
                         self.inputs["W"] = False
                     if event.key == pygame.K_s:
                         self.inputs["S"] = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if self.inventory.slots[self.inventory.selected_slot] is None:
+                            return
+                        self.inventory.slots[self.inventory.selected_slot]\
+                            .attack_event(game, (self.player.body.position.x, self.player.body.position.y))
                 if event.type == pygame.MOUSEWHEEL:
                     if event.y > 0:
                         self.inventory.selected_slot += 1

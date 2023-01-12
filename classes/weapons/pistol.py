@@ -1,6 +1,7 @@
 import os
 
 import pygame
+from classes.ammo.bullet import MediumBullet
 
 class Pistol:
 
@@ -29,7 +30,9 @@ class PistolItem(Pistol):
         "current": 6
     }
 
-    damage = 5
-
     def __init__(self):
         super()
+
+    def attack_event(self, game, pos):
+        game.projectiles.append(MediumBullet(pos))
+

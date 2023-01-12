@@ -4,8 +4,7 @@ import math
 import pymunk
 import pymunk.pygame_util
 import pygame
-
-
+from pygame.math import Vector2
 
 
 class Player:
@@ -48,7 +47,18 @@ class Player:
     def display_item_in_hand(self, game, displayed_item):
         if displayed_item is None:
             return
+        # rotate_point = Vector2(50, 50)
+        #
+        # offset = Vector2(-rotate_point.x, -rotate_point.y)
+        # translated_image = pygame.Surface.copy(displayed_item.image)
+        # translated_image.blit(displayed_item.image, offset)
+        #
         rotated_image = pygame.transform.rotate(displayed_item.image, -math.degrees(game.mouse_angle) + 180)
+        #
+        # offset = Vector2(rotate_point.x, rotate_point.y)
+        # rotated_image = pygame.Surface.copy(rotated_image)
+        # rotated_image.blit(rotated_image, offset)
+
         new_rect = rotated_image.get_rect(center=self.rect.center)
         game.window.blit(rotated_image, new_rect)
 
