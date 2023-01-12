@@ -14,7 +14,22 @@ class Pistol:
     def __init__(self, pos):
         self.rect.center = pos
 
+    def pick_item(self):
+        pass
+
     def update(self, game):
         self.rect.center = game.get_position_by_player(self.size)
         new_rect = self.image.get_rect(center=self.rect.center)
         game.window.blit(self.image, new_rect)
+
+
+class PistolItem(Pistol):
+    ammo = {
+        "max": 6,
+        "current": 6
+    }
+
+    damage = 5
+
+    def __init__(self):
+        super()

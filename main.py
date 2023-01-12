@@ -5,6 +5,7 @@ from classes.enemies.basic import BasicEnemy
 from classes.structures.structures import Wall
 from classes.player.player import Player
 from classes.weapons.pistol import Pistol
+from classes.inventory.inventory import Inventory
 
 from functions.angle import get_angle
 
@@ -49,6 +50,7 @@ class Game:
     def __init__(self, width, height, fps):
         assert(type(width) == int and type(height) == int)
         self.window = pygame.display.set_mode((width, height))
+        self.inventory = Inventory(self.window)
         self.draw_options = pymunk.pygame_util.DrawOptions(self.window)
         self.fps = fps
     def draw(self):
@@ -71,7 +73,11 @@ class Game:
         for item in self.enemies:
             item.update(self)
 
+
         self.player.update(self)
+        self.player.display_item_in_hand(self, self.inventory.slots[self.inventory.selected_slot])
+
+        self.inventory.draw()
 
         pygame.display.flip()
 
@@ -100,6 +106,15 @@ class Game:
                         self.inputs["W"] = False
                     if event.key == pygame.K_s:
                         self.inputs["S"] = False
+                if event.type == pygame.MOUSEWHEEL:
+                    if event.y > 0:
+                        self.inventory.selected_slot += 1
+                        if self.inventory.selected_slot >= len(self.inventory.slots):
+                            self.inventory.selected_slot = 0
+                    if event.y < 0:
+                        self.inventory.selected_slot -= 1
+                        if self.inventory.selected_slot < 0:
+                            self.inventory.selected_slot = len(self.inventory.slots) - 1
             self.mouse_angle = get_angle(pygame.mouse.get_pos(),
                                          (self.player_start_cord["x"], self.player_start_cord["y"]))
             self.player.move_player(self.inputs)
