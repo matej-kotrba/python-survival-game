@@ -68,9 +68,10 @@ class Game:
         self.closest_item = None
         # closest_item = {"item": weapon, "range": int}
 
+        # Collisions functions
         self.space.add_collision_handler(self.collision_types["ENEMY"],
                                          self.collision_types["PROJECTILE"]).begin \
-            = lambda arbiter, space, data: self.item_projectile_hit(arbiter, space, data, self.projectiles, lambda item: self.projectiles.remove(item))
+            = lambda arbiter, space, data: self.enemy_projectile_hit(arbiter, space, data)
 
         self.action_key_surface = pygame.surface.Surface((70, 70))
 
@@ -101,6 +102,9 @@ class Game:
             item.movement()
             item.range_despawn()
 
+        for item in self.enemies:
+            item.show_hp(self)
+
         self.player.update(self)
         self.player.display_item_in_hand(self, self.inventory.slots[self.inventory.selected_slot])
 
@@ -119,6 +123,7 @@ class Game:
                              (self.window.get_width() / 2 - surface_width / 2, self.window.get_height() / 2 - 150))
 
         self.inventory.draw()
+        self.player.show_hp()
 
         pygame.display.flip()
 
@@ -179,20 +184,40 @@ class Game:
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \
                pos[1]
 
-    def item_projectile_hit(self, arbiter, space, data, array, callback):
-        '''
-        :param arbiter: objets which collided
-        :param space: space
-        :param data: data
-        :param callback: function which will apply on item of the array which collided
-        :param array: array of items we want to go through, shape must be included
-        :return:
-        '''
+    # def item_projectile_hit(self, arbiter, space, data, array, callback):
+    #     '''
+    #     :param arbiter: objets which collided
+    #     :param space: space
+    #     :param data: data
+    #     :param callback: function which will apply on item of the array which collided
+    #     :param array: array of items we want to go through, shape must be included
+    #     :return:
+    #     '''
+    #     shapeA, shapeB = arbiter.shapes
+    #     for item in array:
+    #         if item.shape == shapeB:
+    #             callback(item, shapeA)
+    #             break
+    #     return False
+
+    def enemy_projectile_hit(self, arbiter, space, data):
+        # lambda item, shape:
+        # for enemy in self.enemies:
+        #     print("asd")
+        # self.projectiles.remove(item))
         shapeA, shapeB = arbiter.shapes
-        for item in array:
-            if item.shape == shapeB:
-                callback(item)
+        bullet = None
+        for projectile in self.projectiles:
+            if projectile.shape == shapeB:
+                bullet = projectile
                 break
+        for enemy in self.enemies:
+            if enemy.shape == shapeA:
+                enemy.hp -= bullet.damage
+                if enemy.hp <= 0:
+                    self.enemies.remove(enemy)
+                break
+        self.projectiles.remove(projectile)
         return False
 
 

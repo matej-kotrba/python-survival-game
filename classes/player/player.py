@@ -19,6 +19,12 @@ class Player:
 
     PLAYER_SPEED_LIMIT = 350
 
+    max_hp = 50
+    hp = 50
+
+    health_bar_size = (350, 40)
+    health_bar = pygame.surface.Surface(health_bar_size)
+
     def __init__(self, game, space, pos):
         self.game = game
         self.body.position = pos
@@ -63,6 +69,12 @@ class Player:
 
         new_rect = rotated_image.get_rect(center=self.rect.center)
         game.window.blit(rotated_image, new_rect)
+
+    def show_hp(self):
+        pygame.draw.rect(self.health_bar, (0, 0, 0), (0, 0, self.health_bar_size[0], self.health_bar_size[1]))
+        pygame.draw.rect(self.health_bar, (35, 189, 26), (2, 2, (self.health_bar_size[0] - 4) * (self.hp / self.max_hp),
+                                                          self.health_bar_size[1] - 4))
+        self.game.window.blit(self.health_bar, (self.game.window.get_width() - self.health_bar_size[0], 0))
 
     def update(self, game):
         game.camera["x"] = self.body.position.x
