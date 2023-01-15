@@ -1,6 +1,7 @@
 import pygame
 from classes.weapons.pistol import PistolItem
 
+
 class Inventory:
     size = (300, 50)
     pos = (0, 0)

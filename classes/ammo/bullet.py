@@ -64,15 +64,13 @@ class Bullet:
     def movement(self):
         self.body.position = (self.body.position[0] + self.xs * self.s, self.body.position[1] + self.ys * self.s)
 
-    def collision(self):
-        if get_distance(self.body.position, self.game.player.body.position) > self.game.player_start_cord["x"] + 100:
+    def range_despawn(self):
+        if get_distance(self.body.position, self.game.player.body.position) > self.game.player_start_cord["x"] + 250:
             self.game.projectiles.pop(self.game.projectiles.index(self))
-        # for array in [self.game.structures, self.game.enemies]:
-        #     for item in array:
-        #         if get_distance(item.body.position, self.body.position) < self.size:
-        #             self.game.projectiles.pop(self.game.projectiles.index(self))
         return
 
+    def __del__(self):
+        self.game.space.remove(self.body, self.shape)
 
 class LightBullet(Bullet):
     def __init__(self, game, pos, angle):
