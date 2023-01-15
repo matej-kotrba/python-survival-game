@@ -5,12 +5,13 @@ import os
 
 class Wall:
     color = (255, 0, 255, 100)
-    body = pymunk.Body(body_type=pymunk.Body.STATIC)
     original_image = pygame.image.load(os.path.join("imgs", "wall.png"))
 
-    def __init__(self, space, pos, size, **other):
+    def __init__(self, game, space, pos, size, **other):
+        self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.body.position = pos
         self.shape = pymunk.Poly.create_box(self.body, size)
+        self.shape.collision_type = game.collision_types["STRUCTURE"]
         self.shape.elasticity = 0.4
         self.shape.friction = 1
         self.size = size

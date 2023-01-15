@@ -19,9 +19,11 @@ class Player:
 
     PLAYER_SPEED_LIMIT = 350
 
-    def __init__(self, space, pos):
+    def __init__(self, game, space, pos):
+        self.game = game
         self.body.position = pos
         self.shape = pymunk.Circle(self.body, self.radius)
+        self.shape.collision_type = game.collision_types["PLAYER"]
         self.shape.elasticity = 0.8
         # self.shape.friction = 1
         self.shape.mass = self.radius / 10
