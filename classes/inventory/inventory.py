@@ -20,14 +20,20 @@ class Inventory:
         "heavy": pygame.image.load(os.path.join("imgs/ammo", "heavy.png"))
     }
 
-    def __init__(self, window):
-        self.surface = window
+    coin_image_original = pygame.image.load(os.path.join("imgs", "coin.png"))
+    coin_image = pygame.transform.scale(coin_image_original, (60, 60))
+
+    def __init__(self, game):
+        self.game = game
+        self.surface = game.window
         self.ammo = {
             "light": 0,
             "medium": 10,
             "heavy": 0
         }
+        self.coins = 0
         self.ammo_surface = pygame.surface.Surface((180, 60))
+        self.coins_surface = pygame.surface.Surface((60, 60))
         self.font = pygame.font.Font(None, 30)
         self.font_outline = pygame.font.Font(None, 55)
 
@@ -72,3 +78,9 @@ class Inventory:
                 rect_outline.center = (60 * i + 30, self.tile_size + self.tile_gap * 2 + 30)
                 self.surface.blit(text_outline, rect_outline)
                 self.surface.blit(text, rect)
+
+            self.surface.blit(self.coin_image, (self.game.window.get_width() - 60, 40))
+            text = self.font_outline.render(f"{self.coins}", True, (252, 189, 15))
+            rect = text.get_rect()
+            rect.center = (self.game.window.get_width() - 75 - 10 * (len(str(self.coins)) - 1), 72)
+            self.surface.blit(text, rect)

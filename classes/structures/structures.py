@@ -35,5 +35,5 @@ class Wall(Object):
 
 
 
-class Door(Object):
-    color = (255, 0, 255, 100)
+# class Door(Object):
+#     color = (255, 0, 255, 100)

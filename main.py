@@ -7,6 +7,7 @@ from classes.player.player import Player
 from classes.weapons.pistol import Pistol
 from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
+from classes.coin.coin import Coin
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -28,7 +29,8 @@ class Game:
         "PLAYER": 1,
         "STRUCTURE": 2,
         "ENEMY": 3,
-        "PROJECTILE": 4
+        "PROJECTILE": 4,
+        "COIN": 5
     }
 
     player_start_cord = {
@@ -55,7 +57,7 @@ class Game:
     def __init__(self, width, height, fps):
         assert (type(width) == int and type(height) == int)
         self.window = pygame.display.set_mode((width, height))
-        self.inventory = Inventory(self.window)
+        self.inventory = Inventory(self)
         self.draw_options = pymunk.pygame_util.DrawOptions(self.window)
         self.fps = fps
 
@@ -65,6 +67,7 @@ class Game:
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), AmmoBox(self, (300, 500), "medium", 10)]
         self.projectiles = []
+        self.coins = [Coin(self, (800, 500))]
 
         self.closest_item = None
         # closest_item = {"item": weapon, "range": int}
@@ -89,6 +92,9 @@ class Game:
 
         self.window.fill("royalblue")
 
+        debug_options = pymunk.pygame_util.DrawOptions(self.window)
+        self.space.debug_draw(debug_options)
+
         for item in self.structures:
             item.update(self)
 
@@ -101,6 +107,9 @@ class Game:
                         "item": item,
                         "range": distance
                     }
+
+        for item in self.coins:
+            item.draw()
 
         for item in self.enemies:
             item.update(self)
@@ -259,6 +268,8 @@ class Game:
         self.player.hp -= enemy_object.collision_damage
         self.player.after_damage_immunity()
         return True
+
+    def player_coin_hit(self, arbiter, space, data):
 
 
 if __name__ == "__main__":
