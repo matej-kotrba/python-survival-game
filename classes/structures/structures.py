@@ -3,9 +3,7 @@ import pymunk.pygame_util
 import pygame
 import os
 
-class Wall:
-    color = (255, 0, 255, 100)
-    original_image = pygame.image.load(os.path.join("imgs", "wall.png"))
+class Object:
 
     def __init__(self, game, space, pos, size, **other):
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -22,8 +20,20 @@ class Wall:
             self.color = color
             self.shape.color = color
         space.add(self.body, self.shape)
-
     def update(self, game):
         self.rect.center = game.get_position_by_player(self.body.position)
         new_rect = self.image.get_rect(center=self.rect.center)
         game.window.blit(self.image, new_rect)
+
+
+class Wall(Object):
+    color = (255, 0, 255, 100)
+    original_image = pygame.image.load(os.path.join("imgs", "wall.png"))
+
+    def __init__(self, game, space, pos, size, **other):
+        super().__init__(game, space, pos, size, **other)
+
+
+
+class Door(Object):
+    color = (255, 0, 255, 100)

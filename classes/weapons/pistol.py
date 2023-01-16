@@ -9,7 +9,9 @@ class Pistol:
 
     size = (90, 30)
 
-    def __init__(self, pos):
+    def __init__(self, game, pos):
+        self.game = game
+
         self.original_image = pygame.image.load(os.path.join("imgs", "pistol.png"))
         self.image = pygame.transform.scale(self.original_image, self.size)
 
@@ -18,20 +20,18 @@ class Pistol:
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-
-    def interaction(self, game):
-        for i in range(len(game.inventory.slots)):
-            if game.inventory.slots[i] is None:
-                game.inventory.slots[i] = PistolItem()
-                game.weapons.remove(self)
+    def interaction(self):
+        for i in range(len(self.game.inventory.slots)):
+            if self.game.inventory.slots[i] is None:
+                self.game.inventory.slots[i] = PistolItem()
+                self.game.ground_items.remove(self)
                 return
         print("Inventory is full notification")
 
-
-    def update(self, game):
-        self.rect.center = game.get_position_by_player(self.pos)
+    def update(self):
+        self.rect.center = self.game.get_position_by_player(self.pos)
         new_rect = self.image.get_rect(center=self.rect.center)
-        game.window.blit(self.image, new_rect)
+        self.game.window.blit(self.image, new_rect)
 
 
 class PistolItem(Pistol):

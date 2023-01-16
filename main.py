@@ -6,7 +6,7 @@ from classes.structures.structures import Wall
 from classes.player.player import Player
 from classes.weapons.pistol import Pistol
 from classes.inventory.inventory import Inventory
-from classes.ammo.bullet import MediumBullet
+from classes.ammo.ammo_box import AmmoBox
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -63,7 +63,7 @@ class Game:
 
         self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
-        self.weapons = [Pistol((500, 500)), Pistol((800, 400))]
+        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), AmmoBox(self, (300, 500), "medium", 10)]
         self.projectiles = []
 
         self.closest_item = None
@@ -92,8 +92,8 @@ class Game:
         for item in self.structures:
             item.update(self)
 
-        for item in self.weapons:
-            item.update(self)
+        for item in self.ground_items:
+            item.update()
             distance = get_distance(self.get_position_by_player(item.pos), (500, 500))
             if distance < 100:
                 if self.closest_item is None or self.closest_item["range"] > distance:
@@ -155,7 +155,7 @@ class Game:
                         self.inputs["S"] = True
                     if event.key == pygame.K_e:
                         if self.closest_item and not self.inputs["E"]:
-                            self.closest_item["item"].interaction(self)
+                            self.closest_item["item"].interaction()
                         self.inputs["E"] = True
                     if event.key == pygame.K_r:
                         if self.inventory.slots[self.inventory.selected_slot] is not None and not self.inputs["R"]:
