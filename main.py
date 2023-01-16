@@ -46,7 +46,8 @@ class Game:
         "D": False,
         "W": False,
         "S": False,
-        "E": False
+        "E": False,
+        "R": False
     }
 
     mouse_angle = 0
@@ -72,6 +73,12 @@ class Game:
         self.space.add_collision_handler(self.collision_types["ENEMY"],
                                          self.collision_types["PROJECTILE"]).begin \
             = lambda arbiter, space, data: self.enemy_projectile_hit(arbiter, space, data)
+        self.space.add_collision_handler(self.collision_types["STRUCTURE"],
+                                         self.collision_types["PROJECTILE"]).begin \
+            = lambda arbiter, space, data: self.structure_projectile_hit(arbiter, space, data)
+        self.space.add_collision_handler(self.collision_types["ENEMY"],
+                                         self.collision_types["PLAYER"]).begin \
+            = lambda arbiter, space, data: self.enemy_player_hit(arbiter, space, data)
 
         self.action_key_surface = pygame.surface.Surface((70, 70))
 
@@ -105,6 +112,7 @@ class Game:
         for item in self.enemies:
             item.show_hp(self)
 
+        self.player.immunity_delay()
         self.player.update(self)
         self.player.display_item_in_hand(self, self.inventory.slots[self.inventory.selected_slot])
 
@@ -123,6 +131,8 @@ class Game:
                              (self.window.get_width() / 2 - surface_width / 2, self.window.get_height() / 2 - 150))
 
         self.inventory.draw()
+        if self.inventory.slots[self.inventory.selected_slot] is not None:
+            self.inventory.slots[self.inventory.selected_slot].show_ammo(self)
         self.player.show_hp()
 
         pygame.display.flip()
@@ -147,6 +157,10 @@ class Game:
                         if self.closest_item and not self.inputs["E"]:
                             self.closest_item["item"].interaction(self)
                         self.inputs["E"] = True
+                    if event.key == pygame.K_r:
+                        if self.inventory.slots[self.inventory.selected_slot] is not None and not self.inputs["R"]:
+                            self.inventory.slots[self.inventory.selected_slot].reload(self)
+                        self.inputs["R"] = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_d:
                         self.inputs["D"] = False
@@ -156,6 +170,8 @@ class Game:
                         self.inputs["W"] = False
                     if event.key == pygame.K_s:
                         self.inputs["S"] = False
+                    if event.key == pygame.K_r:
+                        self.inputs["R"] = False
                     if event.key == pygame.K_e:
                         self.inputs["E"] = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -164,11 +180,11 @@ class Game:
                             self.inventory.slots[self.inventory.selected_slot] \
                                 .attack_event(game, (self.player.body.position.x, self.player.body.position.y))
                 if event.type == pygame.MOUSEWHEEL:
-                    if event.y > 0:
+                    if event.y < 0:
                         self.inventory.selected_slot += 1
                         if self.inventory.selected_slot >= len(self.inventory.slots):
                             self.inventory.selected_slot = 0
-                    if event.y < 0:
+                    if event.y > 0:
                         self.inventory.selected_slot -= 1
                         if self.inventory.selected_slot < 0:
                             self.inventory.selected_slot = len(self.inventory.slots) - 1
@@ -217,8 +233,32 @@ class Game:
                 if enemy.hp <= 0:
                     self.enemies.remove(enemy)
                 break
-        self.projectiles.remove(projectile)
+        self.projectiles.remove(bullet)
         return False
+
+    def structure_projectile_hit(self, arbiter, space, data):
+        shapeA, shapeB = arbiter.shapes
+        bullet = None
+        for projectile in self.projectiles:
+            if projectile.shape == shapeB:
+                bullet = projectile
+                break
+                break
+        self.projectiles.remove(bullet)
+        return False
+
+    def enemy_player_hit(self, arbiter, space, data):
+        if self.player.immune:
+            return True
+        shapeA, shapeB = arbiter.shapes
+        enemy_object = None
+        for enemy in self.enemies:
+            if shapeA == enemy.shape:
+                enemy_object = enemy
+                break
+        self.player.hp -= enemy_object.collision_damage
+        self.player.after_damage_immunity()
+        return True
 
 
 if __name__ == "__main__":

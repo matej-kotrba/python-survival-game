@@ -6,6 +6,7 @@ import os
 class BasicEnemy():
     color = (255, 250, 0, 100)
     original_image = pygame.image.load(os.path.join("imgs", "basic.png"))
+    collision_damage = 5
 
     def __init__(self, game, space, radius, pos):
         self.game = game

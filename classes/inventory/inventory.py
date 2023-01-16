@@ -1,3 +1,5 @@
+import os
+
 import pygame
 from classes.weapons.pistol import PistolItem
 
@@ -12,8 +14,22 @@ class Inventory:
     tile_color = (156, 156, 156)
     tile_selected_color = (235, 172, 0)
 
+    ammo_images = {
+        "light": pygame.image.load(os.path.join("imgs/ammo", "light.png")),
+        "medium": pygame.image.load(os.path.join("imgs/ammo", "medium.png")),
+        "heavy": pygame.image.load(os.path.join("imgs/ammo", "heavy.png"))
+    }
+
     def __init__(self, window):
         self.surface = window
+        self.ammo = {
+            "light": 0,
+            "medium": 10,
+            "heavy": 0
+        }
+        self.ammo_surface = pygame.surface.Surface((180, 60))
+        self.font = pygame.font.Font(None, 30)
+        self.font_outline = pygame.font.Font(None, 55)
 
     def draw(self):
         pygame.draw.rect(self.surface, (92, 90, 90),
@@ -36,3 +52,23 @@ class Inventory:
             self.surface.blit(new_image, (index * (self.tile_size + self.tile_gap) + self.tile_gap +
                                           (self.tile_size - new_image.get_width()) / 2,
                                           2 + (self.tile_size - new_image.get_height()) / 2))
+
+            pygame.draw.rect(self.ammo_surface, (92, 90, 90), (0, 0, 180, 60))
+
+            resized_images = []
+
+            for image in self.ammo_images:
+                resized_images.append({"item": pygame.transform.scale(self.ammo_images[image], (58, 58)),
+                                       "type": image})
+            self.surface.blit(self.ammo_surface, (0, self.tile_size + self.tile_gap * 2))
+
+            for i in range(len(resized_images)):
+                self.surface.blit(resized_images[i]["item"], (60 * i, self.tile_size + self.tile_gap * 2 + 2, 56, 56))
+                text = self.font.render(f"{self.ammo[resized_images[i]['type']]}", True, (255, 255, 255))
+                text_outline = self.font.render(f"{self.ammo[resized_images[i]['type']]}", True, (0, 0, 0))
+                rect = text.get_rect()
+                rect.center = (60 * i + 30, self.tile_size + self.tile_gap * 2 + 30)
+                rect_outline = text.get_rect()
+                rect_outline.center = (60 * i + 30, self.tile_size + self.tile_gap * 2 + 30)
+                self.surface.blit(text_outline, rect_outline)
+                self.surface.blit(text, rect)

@@ -38,19 +38,22 @@ class Player:
 
         space.add(self.body, self.shape)
 
+        self.immune = False
+        self.immunity_timer = 0
+
     def move_player(self, inputs):
         if inputs["A"]:
             # self.body.position = (self.body.position.x - 5, self.body.position.y)
-            self.body.apply_force_at_local_point((-2500, 0), (0, 0))
+            self.body.apply_force_at_local_point((-1800, 0), (0, 0))
         if inputs["D"]:
             # self.body.position = (self.body.position.x + 5, self.body.position.y)
-            self.body.apply_force_at_local_point((2500, 0), (0, 0))
+            self.body.apply_force_at_local_point((1800, 0), (0, 0))
         if inputs["W"]:
             # self.body.position = (self.body.position.x, self.body.position.y - 5)
-            self.body.apply_force_at_local_point((0, -2500), (0, 0))
+            self.body.apply_force_at_local_point((0, -1800), (0, 0))
         if inputs["S"]:
             # self.body.position = (self.body.position.x, self.body.position.y + 5)
-            self.body.apply_force_at_local_point((0, 2500), (0, 0))
+            self.body.apply_force_at_local_point((0, 1800), (0, 0))
 
     def display_item_in_hand(self, game, displayed_item):
         if displayed_item is None:
@@ -75,6 +78,16 @@ class Player:
         pygame.draw.rect(self.health_bar, (35, 189, 26), (2, 2, (self.health_bar_size[0] - 4) * (self.hp / self.max_hp),
                                                           self.health_bar_size[1] - 4))
         self.game.window.blit(self.health_bar, (self.game.window.get_width() - self.health_bar_size[0], 0))
+
+    def after_damage_immunity(self):
+        self.immune = True
+
+    def immunity_delay(self):
+        if self.immunity_timer < 100:
+            self.immunity_timer += 1.5
+        else:
+            self.immune = False
+            self.immunity_timer = 0
 
     def update(self, game):
         game.camera["x"] = self.body.position.x
