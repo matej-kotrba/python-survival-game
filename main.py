@@ -8,6 +8,7 @@ from classes.weapons.pistol import Pistol
 from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
+from classes.buy_station.buy_station import BuyStation
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -65,7 +66,8 @@ class Game:
 
         self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
-        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), AmmoBox(self, (300, 500), "medium", 10)]
+        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
+                             AmmoBox(self, (300, 500), "medium", 10), BuyStation(self, (800, 600), Pistol(self, (0, 0)), 100)]
         self.projectiles = []
         self.coins = [Coin(self, (800, 500))]
 
@@ -82,18 +84,22 @@ class Game:
         self.space.add_collision_handler(self.collision_types["ENEMY"],
                                          self.collision_types["PLAYER"]).begin \
             = lambda arbiter, space, data: self.enemy_player_hit(arbiter, space, data)
+        self.space.add_collision_handler(self.collision_types["COIN"],
+                                         self.collision_types["PLAYER"]).begin \
+            = lambda arbiter, space, data: self.player_coin_hit(arbiter, space, data)
 
         self.action_key_surface = pygame.surface.Surface((70, 70))
 
         self.font = pygame.font.Font(None, 50)
+        self.font_smaller = pygame.font.Font(None, 30)
 
     def draw(self):
         self.closest_item = None
 
         self.window.fill("royalblue")
 
-        debug_options = pymunk.pygame_util.DrawOptions(self.window)
-        self.space.debug_draw(debug_options)
+        # debug_options = pymunk.pygame_util.DrawOptions(self.window)
+        # self.space.debug_draw(debug_options)
 
         for item in self.structures:
             item.update(self)
@@ -132,10 +138,19 @@ class Game:
             surface_width = self.action_key_surface.get_width()
             surface_height = self.action_key_surface.get_height()
             text = self.font.render("E", True, (255, 255, 255))
+            text_second = None
+            if type(self.closest_item["item"]).__name__ == "BuyStation":
+                text = self.font_smaller.render(f"{self.closest_item['item'].cost}", True, (255, 255, 255))
+                text_second = self.font_smaller.render(f"{type(self.closest_item['item'].item_to_buy).__name__}",
+                                                True, (255, 255, 255))
             rect = text.get_rect()
             pygame.draw.rect(self.action_key_surface, (53, 53, 53),
                              (0, 0, surface_width, surface_height))
             self.action_key_surface.blit(text, (surface_width / 2 - rect.width / 2, surface_height / 2 - rect.height / 2))
+            if text_second is not None:
+                rect_second = text_second.get_rect()
+                self.action_key_surface.blit(text_second,
+                                             (surface_width / 2 - rect_second.width / 2, surface_height / 2 - rect_second.height / 2 + 15))
             self.window.blit(self.action_key_surface,
                              (self.window.get_width() / 2 - surface_width / 2, self.window.get_height() / 2 - 150))
 
@@ -252,7 +267,6 @@ class Game:
             if projectile.shape == shapeB:
                 bullet = projectile
                 break
-                break
         self.projectiles.remove(bullet)
         return False
 
@@ -270,6 +284,15 @@ class Game:
         return True
 
     def player_coin_hit(self, arbiter, space, data):
+        shapeA, shapeB = arbiter.shapes
+        coin = None
+        for item in self.coins:
+            if item.shape == shapeA:
+                coin = item
+                break
+        self.inventory.coins += coin.value
+        self.coins.remove(coin)
+        return False
 
 
 if __name__ == "__main__":

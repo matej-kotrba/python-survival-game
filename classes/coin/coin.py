@@ -8,6 +8,7 @@ import pymunk.pygame_util
 class Coin:
 
     radius = 20
+    value = 10
 
     original_image = pygame.image.load(os.path.join("imgs", "coin.png"))
     image = pygame.transform.scale(original_image, (radius * 2, radius * 2))
@@ -30,3 +31,6 @@ class Coin:
         self.rect.center = self.game.get_position_by_player(self.body.position)
         new_rect = self.image.get_rect(center=self.rect.center)
         self.game.window.blit(self.image, new_rect)
+
+    def __del__(self):
+        self.game.space.remove(self.body, self.shape)
