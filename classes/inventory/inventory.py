@@ -31,7 +31,7 @@ class Inventory:
             "medium": 10,
             "heavy": 0
         }
-        self.coins = 0
+        self.coins = 100
         self.ammo_surface = pygame.surface.Surface((180, 60))
         self.coins_surface = pygame.surface.Surface((60, 60))
         self.font = pygame.font.Font(None, 30)
@@ -84,3 +84,9 @@ class Inventory:
             rect = text.get_rect()
             rect.center = (self.game.window.get_width() - 75 - 10 * (len(str(self.coins)) - 1), 72)
             self.surface.blit(text, rect)
+
+    def get_inventory_space_index(self):
+        for i in range(len(self.slots)):
+            if self.slots[i] is None:
+                return i
+                return -1

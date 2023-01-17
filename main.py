@@ -4,7 +4,7 @@ import pymunk.pygame_util
 from classes.enemies.basic import BasicEnemy
 from classes.structures.structures import Wall
 from classes.player.player import Player
-from classes.weapons.pistol import Pistol
+from classes.weapons.pistol import Pistol, PistolItem
 from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
@@ -67,7 +67,8 @@ class Game:
         self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
-                             AmmoBox(self, (300, 500), "medium", 10), BuyStation(self, (800, 600), Pistol(self, (0, 0)), 100)]
+                             AmmoBox(self, (300, 500), "medium", 10),
+                             BuyStation(self, (800, 600), PistolItem(), 100, True)]
         self.projectiles = []
         self.coins = [Coin(self, (800, 500))]
 

@@ -21,12 +21,11 @@ class Pistol:
         self.rect.center = self.pos
 
     def interaction(self):
-        for i in range(len(self.game.inventory.slots)):
-            if self.game.inventory.slots[i] is None:
-                self.game.inventory.slots[i] = PistolItem()
-                self.game.ground_items.remove(self)
-                return
-        print("Inventory is full notification")
+        i = self.game.inventory.get_inventory_space_index()
+        if i == -1:
+            return
+        self.game.inventory.slots[i] = PistolItem()
+        self.game.ground_items.remove(self)
 
     def update(self):
         self.rect.center = self.game.get_position_by_player(self.pos)
