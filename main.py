@@ -68,7 +68,7 @@ class Game:
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
                              AmmoBox(self, (300, 500), "medium", 10),
-                             BuyStation(self, (800, 600), PistolItem(), 100, True)]
+                             BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
         self.projectiles = []
         self.coins = [Coin(self, (800, 500))]
 
@@ -142,7 +142,8 @@ class Game:
             text_second = None
             if type(self.closest_item["item"]).__name__ == "BuyStation":
                 text = self.font_smaller.render(f"{self.closest_item['item'].cost}", True, (255, 255, 255))
-                text_second = self.font_smaller.render(f"{type(self.closest_item['item'].item_to_buy).__name__}",
+                text_second = self.font_smaller\
+                    .render(f"{type(self.closest_item['item'].item_to_buy).__name__.replace('Item', '')}",
                                                 True, (255, 255, 255))
             rect = text.get_rect()
             pygame.draw.rect(self.action_key_surface, (53, 53, 53),

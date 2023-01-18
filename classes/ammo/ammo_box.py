@@ -2,6 +2,7 @@ import os
 
 import pygame
 
+
 class AmmoBox:
 
     size = (80, 80)
@@ -19,7 +20,8 @@ class AmmoBox:
 
     def interaction(self):
         self.game.inventory.ammo[self.ammo_type] += self.ammo_count
-        self.game.ground_items.remove(self)
+        if self in self.game.ground_items:
+            self.game.ground_items.remove(self)
 
     def update(self):
         self.rect.center = self.game.get_position_by_player(self.pos)

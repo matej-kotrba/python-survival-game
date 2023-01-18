@@ -1,7 +1,11 @@
 import pymunk
 import pymunk.pygame_util
 import pygame
+from classes.ammo.ammo_box import AmmoBox
+from classes.coin.coin import Coin
+
 import os
+import random
 
 class BasicEnemy():
     color = (255, 250, 0, 100)
@@ -42,4 +46,10 @@ class BasicEnemy():
         game.window.blit(self.health_bar, (x - 60, y - self.radius * 2 - 10))
 
     def __del__(self):
+        if random.random() > 0.6:
+            self.game.ground_items.append(AmmoBox(self.game, self.body.position, "medium", random.randrange(1, 6)))
+        for i in range(4):
+            self.game.coins.append(Coin(self.game,
+                                        (self.body.position.x + 100 * (random.random() - 0.5),
+                                         self.body.position.y + (100 * random.random() * 0.5))))
         self.game.space.remove(self.body, self.shape)
