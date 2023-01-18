@@ -2,6 +2,7 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 from classes.enemies.basic import BasicEnemy
+from classes.enemies.range import RangeEnemy
 from classes.structures.structures import Wall
 from classes.player.player import Player
 from classes.weapons.pistol import Pistol, PistolItem
@@ -64,7 +65,8 @@ class Game:
 
         self.player = Player(self, self.space, (self.player_start_cord["x"], self.player_start_cord["y"]))
 
-        self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300))]
+        self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
+                        RangeEnemy(self, self.space, 25, (750, 500))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
                              AmmoBox(self, (300, 500), "medium", 10),
@@ -79,6 +81,9 @@ class Game:
         self.space.add_collision_handler(self.collision_types["ENEMY"],
                                          self.collision_types["PROJECTILE"]).begin \
             = lambda arbiter, space, data: self.enemy_projectile_hit(arbiter, space, data)
+        self.space.add_collision_handler(self.collision_types["PLAYER"],
+                                         self.collision_types["PROJECTILE"]).begin \
+            = lambda arbiter, space, data: self.player_projectile_hit(arbiter, space, data)
         self.space.add_collision_handler(self.collision_types["STRUCTURE"],
                                          self.collision_types["PROJECTILE"]).begin \
             = lambda arbiter, space, data: self.structure_projectile_hit(arbiter, space, data)
@@ -88,6 +93,10 @@ class Game:
         self.space.add_collision_handler(self.collision_types["COIN"],
                                          self.collision_types["PLAYER"]).begin \
             = lambda arbiter, space, data: self.player_coin_hit(arbiter, space, data)
+        self.space.add_collision_handler(self.collision_types["COIN"],
+                                         self.collision_types["ENEMY"]).begin \
+            = lambda a, b, c: False
+
 
         self.action_key_surface = pygame.surface.Surface((70, 70))
 
@@ -119,6 +128,7 @@ class Game:
             item.draw()
 
         for item in self.enemies:
+            item.special_attack()
             item.update(self)
 
         for item in self.projectiles:
@@ -253,12 +263,27 @@ class Game:
             if projectile.shape == shapeB:
                 bullet = projectile
                 break
+        if bullet.bullet_owner != "player":
+            return False
         for enemy in self.enemies:
             if enemy.shape == shapeA:
                 enemy.hp -= bullet.damage
                 if enemy.hp <= 0:
                     self.enemies.remove(enemy)
                 break
+        self.projectiles.remove(bullet)
+        return False
+
+    def player_projectile_hit(self, arbiter, space, data):
+        shapeA, shapeB = arbiter.shapes
+        bullet = None
+        for projectile in self.projectiles:
+            if projectile.shape == shapeB:
+                bullet = projectile
+                break
+        if bullet.bullet_owner != "enemy":
+            return False
+        self.player.hp -= bullet.damage
         self.projectiles.remove(bullet)
         return False
 

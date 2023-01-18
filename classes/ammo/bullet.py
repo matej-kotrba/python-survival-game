@@ -29,7 +29,7 @@ BULLETS_TYPES = {
 
 class Bullet:
 
-    def __init__(self, game, bullet_type, pos, angle):
+    def __init__(self, game, bullet_type, pos, angle, owner):
         self.game = game
         self.body = pymunk.Body()
         self.body.position = pos
@@ -49,6 +49,8 @@ class Bullet:
         self.shape.color = self.color
 
         game.space.add(self.body, self.shape)
+
+        self.bullet_owner = owner # player | enemy
 
         self.surface = pygame.Surface((self.size * 2, self.size * 2), pygame.SRCALPHA, 32)
         self.surface = self.surface.convert_alpha()
@@ -73,11 +75,11 @@ class Bullet:
         self.game.space.remove(self.body, self.shape)
 
 class LightBullet(Bullet):
-    def __init__(self, game, pos, angle):
-        super().__init__(game, BULLETS_TYPES["light"], pos, angle)
+    def __init__(self, game, pos, angle, owner):
+        super().__init__(game, BULLETS_TYPES["light"], pos, angle, owner)
 
 
 class MediumBullet(Bullet):
-    def __init__(self, game, pos, angle):
-        super().__init__(game, BULLETS_TYPES["medium"], pos, angle)
+    def __init__(self, game, pos, angle, owner):
+        super().__init__(game, BULLETS_TYPES["medium"], pos, angle, owner)
 

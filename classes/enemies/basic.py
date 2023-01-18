@@ -7,11 +7,8 @@ from classes.coin.coin import Coin
 import os
 import random
 
-class BasicEnemy():
-    color = (255, 250, 0, 100)
-    original_image = pygame.image.load(os.path.join("imgs", "basic.png"))
-    collision_damage = 5
 
+class Enemy:
     def __init__(self, game, space, radius, pos):
         self.game = game
         self.body = pymunk.Body()
@@ -26,9 +23,6 @@ class BasicEnemy():
         self.shape.mass = radius / 10
         self.shape.color = self.color
         space.add(self.body, self.shape)
-
-        self.max_hp = 15
-        self.hp = 15
 
         self.health_bar = pygame.surface.Surface((120, 30))
         self.health_bar_size = (120, 30)
@@ -53,3 +47,16 @@ class BasicEnemy():
                                         (self.body.position.x + 100 * (random.random() - 0.5),
                                          self.body.position.y + (100 * random.random() * 0.5))))
         self.game.space.remove(self.body, self.shape)
+
+    def special_attack(self):
+        pass
+
+class BasicEnemy(Enemy):
+    color = (255, 250, 0, 100)
+    original_image = pygame.image.load(os.path.join("imgs", "basic.png"))
+    collision_damage = 5
+
+    def __init__(self, game, space, radius, pos):
+        super().__init__(game, space, radius, pos)
+        self.max_hp = 15
+        self.hp = 15

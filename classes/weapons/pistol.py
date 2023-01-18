@@ -53,7 +53,7 @@ class PistolItem(Pistol):
 
     def attack_event(self, game, pos):
         if self.ammo["current"] > 0:
-            game.projectiles.append(MediumBullet(game, pos, game.mouse_angle))
+            game.projectiles.append(MediumBullet(game, pos, game.mouse_angle, "player"))
             self.ammo["current"] -= 1
 
     def show_ammo(self, game):
