@@ -3,9 +3,10 @@ import pymunk
 import pymunk.pygame_util
 from classes.enemies.basic import BasicEnemy
 from classes.enemies.range import RangeEnemy
+from classes.enemies.spawn import Spawn
 from classes.structures.structures import Wall
 from classes.player.player import Player
-from classes.weapons.pistol import Pistol, PistolItem
+from classes.weapons.pistol import Pistol
 from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
@@ -67,6 +68,7 @@ class Game:
 
         self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
                         RangeEnemy(self, self.space, 25, (750, 500))]
+        self.spawners = [Spawn(self, (400, 800))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
                              AmmoBox(self, (300, 500), "medium", 10),
@@ -111,6 +113,9 @@ class Game:
         # debug_options = pymunk.pygame_util.DrawOptions(self.window)
         # self.space.debug_draw(debug_options)
 
+        for item in self.spawners:
+            item.draw()
+
         for item in self.structures:
             item.update(self)
 
@@ -151,9 +156,11 @@ class Game:
             text = self.font.render("E", True, (255, 255, 255))
             text_second = None
             if type(self.closest_item["item"]).__name__ == "BuyStation":
-                text = self.font_smaller.render(f"{self.closest_item['item'].cost}", True, (255, 255, 255))
+                extra_text = ""
+                if (type(self.closest_item["item"].item_to_buy).__name__ == "AmmoBox"):
+                   extra_text = f"{self.closest_item['item'].item_to_buy.ammo_type} - {self.closest_item['item'].item_to_buy.ammo_count}"
                 text_second = self.font_smaller\
-                    .render(f"{type(self.closest_item['item'].item_to_buy).__name__.replace('Item', '')}",
+                    .render(f"{type(self.closest_item['item'].item_to_buy).__name__.replace('Item', '')}, {extra_text} cost = {self.closest_item['item'].cost}",
                                                 True, (255, 255, 255))
             rect = text.get_rect()
             pygame.draw.rect(self.action_key_surface, (53, 53, 53),
@@ -161,8 +168,11 @@ class Game:
             self.action_key_surface.blit(text, (surface_width / 2 - rect.width / 2, surface_height / 2 - rect.height / 2))
             if text_second is not None:
                 rect_second = text_second.get_rect()
-                self.action_key_surface.blit(text_second,
-                                             (surface_width / 2 - rect_second.width / 2, surface_height / 2 - rect_second.height / 2 + 15))
+                rect_second.midleft = (10, self.window.get_height() - 30)
+                pygame.draw.rect(self.window, (53, 53, 53), (0, self.window.get_height() - 60, text_second.get_width() + 20, 60))
+                self.window.blit(text_second, rect_second)
+                # self.action_key_surface.blit(text_second,
+                #                              (surface_width / 2 - rect_second.width / 2, surface_height / 2 - rect_second.height / 2 + 15))
             self.window.blit(self.action_key_surface,
                              (self.window.get_width() / 2 - surface_width / 2, self.window.get_height() / 2 - 150))
 
