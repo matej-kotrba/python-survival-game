@@ -11,6 +11,7 @@ from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
 from classes.buy_station.buy_station import BuyStation
+from classes.enemies.wave import Wave
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -99,11 +100,12 @@ class Game:
                                          self.collision_types["ENEMY"]).begin \
             = lambda a, b, c: False
 
-
         self.action_key_surface = pygame.surface.Surface((70, 70))
 
         self.font = pygame.font.Font(None, 50)
         self.font_smaller = pygame.font.Font(None, 30)
+
+        self.wave = Wave(self, 1)
 
     def draw(self):
         self.closest_item = None
@@ -112,6 +114,8 @@ class Game:
 
         # debug_options = pymunk.pygame_util.DrawOptions(self.window)
         # self.space.debug_draw(debug_options)
+
+        self.wave.check_status()
 
         for item in self.spawners:
             item.draw()
@@ -179,6 +183,7 @@ class Game:
         self.inventory.draw()
         if self.inventory.slots[self.inventory.selected_slot] is not None:
             self.inventory.slots[self.inventory.selected_slot].show_ammo(self)
+        self.wave.display_overview()
         self.player.show_hp()
 
         pygame.display.flip()
