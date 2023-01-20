@@ -1,8 +1,6 @@
 import pygame
 import pymunk
 import pymunk.pygame_util
-from classes.enemies.basic import BasicEnemy
-from classes.enemies.range import RangeEnemy
 from classes.enemies.spawn import Spawn
 from classes.structures.structures import Wall
 from classes.player.player import Player

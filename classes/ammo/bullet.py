@@ -2,7 +2,9 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 from functions.math import get_distance
+from functions.angle import get_angle
 
+import os
 import math
 
 BULLETS_TYPES = {
@@ -83,3 +85,51 @@ class MediumBullet(Bullet):
     def __init__(self, game, pos, angle, owner):
         super().__init__(game, BULLETS_TYPES["medium"], pos, angle, owner)
 
+class KnifeAttack:
+    def __init__(self, game, pos, angle, owner):
+        self.game = game
+        self.body = pymunk.Body()
+        self.body.position = pos
+        # self.body.filter = pymunk.ShapeFilter(categories=self.game.collision_types["PROJECTILE"], mask=0b11110)
+        self.size = (90, 30)
+        self.damage = 5
+
+        self.xs = -math.cos(angle)
+        self.ys = -math.sin(angle)
+        self.s = 10
+
+        self.shape = pymunk.Poly.create_box(self.body, self.size)
+        self.shape.collision_type = game.collision_types["PROJECTILE"]
+        self.shape.mass = 1
+        self.shape.elasticity = 0.01
+
+        game.space.add(self.body, self.shape)
+
+        self.bullet_owner = owner # player | enemy
+
+        self.original_image = pygame.image.load(os.path.join("imgs", "knife.png"))
+        self.image = pygame.transform.scale(self.original_image, self.size)
+        self.rect = self.image.get_rect()
+
+    def draw(self):
+        self.rect.center = self.game.get_position_by_player(self.body.position)
+        self.image = pygame.transform.scale(self.image, self.size)
+        rotated_image = pygame.transform.rotate\
+            (self.image,
+             -math.degrees(get_angle((self.game.player_start_cord["x"] + self.xs,
+                                      self.game.player_start_cord["y"] + self.ys),
+                                     (self.game.player_start_cord["x"],
+                                      self.game.player_start_cord["y"]))) + 180)
+        new_rect = rotated_image.get_rect(center=self.rect.center)
+        self.game.window.blit(rotated_image, new_rect)
+
+    def movement(self):
+        self.body.position = (self.body.position[0] + self.xs * self.s, self.body.position[1] + self.ys * self.s)
+
+    def range_despawn(self):
+        if get_distance(self.body.position, self.game.player.body.position) > self.game.player_start_cord["x"] + 250:
+            self.game.projectiles.pop(self.game.projectiles.index(self))
+        return
+
+    def __del__(self):
+        self.game.space.remove(self.body, self.shape)

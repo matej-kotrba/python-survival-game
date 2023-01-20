@@ -1,6 +1,7 @@
 import os
 
 import pygame
+from classes.ammo.bullet import KnifeAttack
 
 pygame.init()
 
@@ -47,14 +48,8 @@ class KnifeItem(Knife):
         self.move_knife = (0, 0)
 
     def attack_event(self, game, pos):
-        self.move_knife = (100, 100)
+        game.projectiles.append(KnifeAttack(game, pos, game.mouse_angle, "player"))
 
-    def update(self):
-        player_position = self.game.get_position_by_player(self.pos)
-        self.rect.center = (player_position[0] + self.move_knife[0], player_position[1] + self.move_knife[1])
-        print(self.rect.center)
-        new_rect = self.image.get_rect(center=self.rect.center)
-        self.game.window.blit(self.image, new_rect)
     def show_ammo(self, game):
         self.ammo_surface.fill((0, 0, 0, 0))
         text = self.font.render(f" ∞ / ∞", False, (255, 255, 255))
