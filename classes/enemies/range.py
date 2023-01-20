@@ -13,6 +13,8 @@ class RangeEnemy(Enemy):
     original_image = pygame.image.load(os.path.join("imgs", "basic.png"))
     collision_damage = 2
 
+    spawn_cost = 3
+
     def __init__(self, game, space, radius, pos):
         super().__init__(game, space, radius, pos)
         self.max_hp = 10

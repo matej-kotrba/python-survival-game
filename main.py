@@ -7,6 +7,7 @@ from classes.enemies.spawn import Spawn
 from classes.structures.structures import Wall
 from classes.player.player import Player
 from classes.weapons.pistol import Pistol
+from classes.weapons.knife import Knife
 from classes.inventory.inventory import Inventory
 from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
@@ -67,11 +68,12 @@ class Game:
 
         self.player = Player(self, self.space, (self.player_start_cord["x"], self.player_start_cord["y"]))
 
-        self.enemies = [BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
-                        RangeEnemy(self, self.space, 25, (750, 500))]
+        self.enemies = []
+        # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
+        # RangeEnemy(self, self.space, 25, (750, 500))
         self.spawners = [Spawn(self, (400, 800))]
         self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
-        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)),
+        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
                              AmmoBox(self, (300, 500), "medium", 10),
                              BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
         self.projectiles = []
@@ -278,7 +280,7 @@ class Game:
             if projectile.shape == shapeB:
                 bullet = projectile
                 break
-        if bullet.bullet_owner != "player":
+        if bullet is None or bullet.bullet_owner != "player":
             return False
         for enemy in self.enemies:
             if enemy.shape == shapeA:
