@@ -7,13 +7,14 @@ from classes.coin.coin import Coin
 import os
 import random
 import math
+from functions.math import get_xys, get_distance
 
 class Enemy:
     def __init__(self, game, space, radius, pos):
         self.game = game
         self.body = pymunk.Body()
         self.body.position = pos
-        self.radius = radius
+        self.radius = 20
         self.image = pygame.transform.scale(self.original_image, (radius * 2, radius * 2))
         self.rect = self.image.get_rect()
         self.shape = pymunk.Circle(self.body, radius)
@@ -26,6 +27,8 @@ class Enemy:
 
         self.health_bar = pygame.surface.Surface((120, 30))
         self.health_bar_size = (120, 30)
+
+        self.s = 3
 
         # IMPLEMENTING PATH FINDING
         # self.graph = graph
@@ -40,16 +43,34 @@ class Enemy:
         #         round(self.body.position[1] // self.game.TILE_SIZE)],
         #     self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
         #         round(self.game.player.body.position[1] // self.game.TILE_SIZE)]
-        # ))
+        # )[self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
+        #         round(self.body.position[1] // self.game.TILE_SIZE)]])
         self.path = []
+        self.create_path()
+        print(len(self.path))
 
     def create_path(self):
-        self.game.graph.A_star(
+        routes = self.game.graph.A_star(
             self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
                 round(self.body.position[1] // self.game.TILE_SIZE)],
             self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
                 round(self.game.player.body.position[1] // self.game.TILE_SIZE)]
         )
+        node = routes[self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
+                round(self.game.player.body.position[1] // self.game.TILE_SIZE)]]
+        while node is not None:
+            self.path.append(node)
+            node = routes[node]
+        self.path.pop()
+
+    def move(self):
+        self.create_path()
+        if len(self.path) <= 0:
+            return
+        xs, ys = get_xys(self.body.position, (self.path[-1].x * self.game.TILE_SIZE, self.path[-1].y * self.game.TILE_SIZE))
+        self.body.position = (self.body.position.x + xs * self.s, self.body.position.y + ys * self.s)
+        if get_distance(self.body.position, (self.path[-1].x * self.game.TILE_SIZE, self.path[-1].y * self.game.TILE_SIZE)) < self.radius:
+            self.path.pop()
 
     def update(self, game):
         self.rect.center = game.get_position_by_player(self.body.position)

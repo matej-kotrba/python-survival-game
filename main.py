@@ -229,6 +229,7 @@ class Game:
             item.draw()
 
         for item in self.enemies:
+            item.move()
             item.special_attack()
             item.update(self)
 
