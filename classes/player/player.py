@@ -4,7 +4,6 @@ import math
 import pymunk
 import pymunk.pygame_util
 import pygame
-from pygame.math import Vector2
 
 
 class Player:
@@ -20,7 +19,7 @@ class Player:
     PLAYER_SPEED_LIMIT = 350
 
     max_hp = 50
-    hp = 50
+    hp = 0
 
     health_bar_size = (350, 40)
     health_bar = pygame.surface.Surface(health_bar_size)
@@ -90,6 +89,10 @@ class Player:
             self.immunity_timer = 0
 
     def update(self, game):
+
+        if self.hp <= 0:
+            game.is_paused = True
+
         game.camera["x"] = self.body.position.x
         game.camera["y"] = self.body.position.y
         self.rect.center = (game.window.get_width() / 2, game.window.get_height() / 2)

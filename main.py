@@ -19,7 +19,8 @@ pygame.init()
 
 
 class Game:
-    isRunning = True
+    is_running = True
+    is_paused = False
     clock = pygame.time.Clock()
     fps = 60
     dt = 1 / fps
@@ -56,6 +57,7 @@ class Game:
     }
 
     mouse_angle = 0
+    point = (0, 0)
 
     def __init__(self, width, height, fps):
         assert (type(width) == int and type(height) == int)
@@ -106,6 +108,9 @@ class Game:
         self.font_smaller = pygame.font.Font(None, 30)
 
         self.wave = Wave(self, 1)
+
+        self.death_screen_surface = pygame.surface.Surface(self.window.get_size(), pygame.SRCALPHA, 32)
+        self.death_screen_surface.convert_alpha()
 
     def draw(self):
         self.closest_item = None
@@ -186,14 +191,12 @@ class Game:
         self.wave.display_overview()
         self.player.show_hp()
 
-        pygame.display.flip()
-
     def run(self):
 
-        while self.isRunning:
+        while self.is_running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.isRunning = False
+                    self.is_running = False
                     break
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_d:
@@ -242,10 +245,35 @@ class Game:
 
             self.mouse_angle = get_angle(pygame.mouse.get_pos(),
                                          (self.player_start_cord["x"], self.player_start_cord["y"]))
-            self.player.move_player(self.inputs)
-            self.draw()
-            self.space.step(self.dt)
-            self.clock.tick(self.fps)
+            self.point = pygame.mouse.get_pos()
+
+            if not self.is_paused:
+                self.player.move_player(self.inputs)
+                self.draw()
+                self.space.step(self.dt)
+                self.clock.tick(self.fps)
+            else:
+                self.death_screen_surface.fill((0, 0, 0, 1))
+                font = pygame.font.Font(None, 80)
+                text = font.render("You died", True, (255, 0, 0))
+                text_rect = text.get_rect()
+                text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2)
+                self.death_screen_surface.blit(text, text_rect)
+                restart_button = pygame.Rect(self.window.get_width() / 2, self.window.get_height() / 2 + 100, 0, 0).inflate(250, 90)
+                self.window.fill((33, 33, 33) if not restart_button.collidepoint(self.point) else (255, 255, 255), restart_button)
+                restart_button_text = self.font.render("Restart", True, (255, 255, 255) if not restart_button.collidepoint(self.point) else (33, 33, 33))
+                restart_button_text_rect = restart_button_text.get_rect()
+                restart_button_text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                self.window.blit(restart_button_text, restart_button_text_rect)
+                # restart_button_rect = restart_button.get_rect()
+                # restart_button_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                # self.death_screen_surface.blit(restart_button, restart_button_rect)
+                self.window.blit(self.death_screen_surface, (0, 0))
+
+                if restart_button.collidepoint(self.point):
+                    print("ads")
+
+            pygame.display.flip()
 
     def get_position_by_player(self, pos):
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \
