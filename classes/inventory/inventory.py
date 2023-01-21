@@ -3,11 +3,12 @@ import os
 import pygame
 from classes.weapons.pistol import PistolItem
 from classes.weapons.knife import KnifeItem
+from classes.weapons.shotgun import ShotgunItem
 
 class Inventory:
     size = (300, 50)
     pos = (0, 0)
-    slots = [PistolItem(), KnifeItem(), None, None, None, None]
+    slots = [PistolItem(), KnifeItem(), ShotgunItem(), None, None, None]
     selected_slot = 0
     tile_size = 70
     tile_gap = 2
@@ -27,7 +28,7 @@ class Inventory:
         self.game = game
         self.surface = game.window
         self.ammo = {
-            "light": 0,
+            "light": 100,
             "medium": 10,
             "heavy": 0
         }
