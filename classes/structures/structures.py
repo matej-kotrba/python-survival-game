@@ -6,6 +6,7 @@ import os
 class Object:
 
     def __init__(self, game, space, pos, size, **other):
+        self.game = game
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.body.position = pos
         self.shape = pymunk.Poly.create_box(self.body, size)
@@ -25,6 +26,8 @@ class Object:
         new_rect = self.image.get_rect(center=self.rect.center)
         game.window.blit(self.image, new_rect)
 
+    def __del__(self):
+        self.game.space.remove(self.body, self.shape)
 
 class Wall(Object):
     color = (255, 0, 255, 100)

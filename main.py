@@ -376,7 +376,38 @@ class Game:
         # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
         # RangeEnemy(self, self.space, 25, (750, 500))
         self.spawners = [Spawn(self, (400, 800))]
-        self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
+        self.structures = [Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, -self.TILE_SIZE / 2),
+                                (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE)),
+                           Wall(self, self.space, (-self.TILE_SIZE / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
+                                (self.TILE_SIZE, self.TILE_SIZE * self.MAP_TILES_LENGTH)),
+                           Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH + self.TILE_SIZE / 2,
+                                                   self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
+                                (self.TILE_SIZE, self.TILE_SIZE * self.MAP_TILES_LENGTH)),
+                           Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2,
+                                                   self.TILE_SIZE * self.MAP_TILES_LENGTH + self.TILE_SIZE / 2),
+                                (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE))]
+
+        self.map = []
+        for i in range(self.MAP_TILES_LENGTH):
+            self.map.append([])
+            for k in range(self.MAP_TILES_LENGTH):
+                self.map[i].append(0)
+        for i in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
+            for k in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
+                if random.random() > 0.7:
+                    index = random.randrange(len(self.MAP_STRUCTURES))
+                    structure = self.rotate_map_structure(self.MAP_STRUCTURES[index])
+                    for j in range(len(structure)):
+                        for g in range(len(structure[j])):
+                            if i + j > self.MAP_TILES_LENGTH - 1 or k + g > self.MAP_TILES_LENGTH - 1:
+                                continue
+                            symbol = structure[j][g]
+                            self.map[i + j][k + g] = symbol
+                            if symbol == 1:
+                                self.structures.append(
+                                    Wall(self, self.space, ((i + j) * self.TILE_SIZE + self.TILE_SIZE / 2,
+                                                            (k + g) * self.TILE_SIZE + self.TILE_SIZE / 2),
+                                         (self.TILE_SIZE, self.TILE_SIZE)))
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
                              AmmoBox(self, (300, 500), "medium", 10),
                              BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
@@ -387,7 +418,7 @@ class Game:
 
         self.closest_item = None
         self.is_paused = False
-
+        self.graph = Graph(self)
 
     def get_position_by_player(self, pos):
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \

@@ -64,12 +64,18 @@ class Enemy:
         self.path.pop()
 
     def move(self):
+        # for item in self.path:
+        #     x,y = self.game.get_position_by_player((item.x * self.game.TILE_SIZE,
+        #                                                        item.y * self.game.TILE_SIZE))
+        #     pygame.draw.rect(self.game.window, (0, 255, 0),
+        #                      (round(x), round(y), self.game.TILE_SIZE, self.game.TILE_SIZE))
         self.create_path()
         if len(self.path) <= 0:
             return
-        xs, ys = get_xys(self.body.position, (self.path[-1].x * self.game.TILE_SIZE, self.path[-1].y * self.game.TILE_SIZE))
+        xy = (self.path[-1].x * self.game.TILE_SIZE + self.game.TILE_SIZE / 2, self.path[-1].y * self.game.TILE_SIZE + self.game.TILE_SIZE / 2)
+        xs, ys = get_xys(self.body.position, xy)
         self.body.position = (self.body.position.x + xs * self.s, self.body.position.y + ys * self.s)
-        if get_distance(self.body.position, (self.path[-1].x * self.game.TILE_SIZE, self.path[-1].y * self.game.TILE_SIZE)) < self.radius:
+        if get_distance(self.body.position, xy) < self.radius:
             self.path.pop()
 
     def update(self, game):
