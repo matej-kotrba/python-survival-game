@@ -7,7 +7,6 @@ import pygame
 
 
 class Player:
-    body = pymunk.Body()
     color = (111, 56, 214, 100)
     radius = 50
     angle = 0
@@ -19,13 +18,14 @@ class Player:
     PLAYER_SPEED_LIMIT = 350
 
     max_hp = 50
-    hp = 0
+    hp = 50
 
     health_bar_size = (350, 40)
     health_bar = pygame.surface.Surface(health_bar_size)
 
     def __init__(self, game, space, pos):
         self.game = game
+        self.body = pymunk.Body()
         self.body.position = pos
         self.shape = pymunk.Circle(self.body, self.radius)
         self.shape.collision_type = game.collision_types["PLAYER"]
@@ -100,3 +100,6 @@ class Player:
         rotated_image = pygame.transform.rotate(self.image, -math.degrees(game.mouse_angle) + 180)
         new_rect = rotated_image.get_rect(center=self.rect.center)
         game.window.blit(rotated_image, new_rect)
+
+    def __del__(self):
+        self.game.space.remove(self.body, self.shape)

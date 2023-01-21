@@ -14,6 +14,7 @@ from classes.enemies.wave import Wave
 
 from functions.angle import get_angle
 from functions.math import get_distance
+import random
 
 pygame.init()
 
@@ -28,6 +29,58 @@ class Game:
     space = pymunk.Space()
     space.gravity = (0, 0)
     space.damping = 0.4
+
+    TILE_SIZE = 40
+    MAP_TILES_LENGTH = 80
+    WALL_MAP_NUMBER = 1
+    EMPTY_MAP_NUMBER = 0
+    MAP_STRUCTURES_LENGTH = 9
+    MAP_STRUCTURES = [
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0]
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ],
+        [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0]
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+    ]
 
     collision_types = {
         "PLAYER": 1,
@@ -72,7 +125,35 @@ class Game:
         # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
         # RangeEnemy(self, self.space, 25, (750, 500))
         self.spawners = [Spawn(self, (400, 800))]
-        self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
+        self.structures = [Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, -self.TILE_SIZE / 2),
+                                (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE)),
+                           Wall(self, self.space, (-self.TILE_SIZE / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
+                                (self.TILE_SIZE, self.TILE_SIZE * self.MAP_TILES_LENGTH)),
+                           Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH + self.TILE_SIZE / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
+                                (self.TILE_SIZE, self.TILE_SIZE * self.MAP_TILES_LENGTH)),
+                           Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH + self.TILE_SIZE / 2),
+                                (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE))]
+
+        self.map = []
+        for i in range(self.MAP_TILES_LENGTH):
+            self.map.append([])
+            for k in range(self.MAP_TILES_LENGTH):
+                self.map[i].append(0)
+        for i in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
+            for k in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
+                if random.random() > 0.7:
+                    index = random.randrange(len(self.MAP_STRUCTURES))
+                    for j in range(len(self.MAP_STRUCTURES[index])):
+                        for g in range(len(self.MAP_STRUCTURES[0][j])):
+                            if i + j > self.MAP_TILES_LENGTH - 1 or k + g > self.MAP_TILES_LENGTH - 1:
+                                continue
+                            symbol = self.MAP_STRUCTURES[index][j][g]
+                            self.map[i + j][k + g] = symbol
+                            if symbol == 1:
+                                self.structures.append(Wall(self, self.space, ((i + j) * self.TILE_SIZE + self.TILE_SIZE / 2,
+                                                                               (k + g) * self.TILE_SIZE + self.TILE_SIZE / 2),
+                                                            (self.TILE_SIZE, self.TILE_SIZE)))
+
         self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
                              AmmoBox(self, (300, 500), "medium", 10),
                              BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
@@ -270,10 +351,36 @@ class Game:
                 # self.death_screen_surface.blit(restart_button, restart_button_rect)
                 self.window.blit(self.death_screen_surface, (0, 0))
 
-                if restart_button.collidepoint(self.point):
-                    print("ads")
+                if restart_button.collidepoint(self.point) and pygame.mouse.get_pressed()[0]:
+                    self.restart_game()
 
             pygame.display.flip()
+
+    def restart_game(self):
+
+        f = open("scoreboard.txt", "a")
+        f.write(f"Player made it into Wave {self.wave.number}")
+        f.close()
+
+        self.inventory = Inventory(self)
+        self.player = Player(self, self.space, (self.player_start_cord["x"], self.player_start_cord["y"]))
+
+        self.enemies = []
+        # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
+        # RangeEnemy(self, self.space, 25, (750, 500))
+        self.spawners = [Spawn(self, (400, 800))]
+        self.structures = [Wall(self, self.space, (400, 775), (800, 50))]
+        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
+                             AmmoBox(self, (300, 500), "medium", 10),
+                             BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
+        self.projectiles = []
+        self.coins = [Coin(self, (800, 500))]
+
+        self.wave = Wave(self, 1)
+
+        self.closest_item = None
+        self.is_paused = False
+
 
     def get_position_by_player(self, pos):
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \
@@ -337,6 +444,8 @@ class Game:
             if projectile.shape == shapeB:
                 bullet = projectile
                 break
+        if bullet is None:
+            return False
         self.projectiles.remove(bullet)
         return False
 
@@ -360,6 +469,8 @@ class Game:
             if item.shape == shapeA:
                 coin = item
                 break
+        if coin is None:
+            return False
         self.inventory.coins += coin.value
         self.coins.remove(coin)
         return False

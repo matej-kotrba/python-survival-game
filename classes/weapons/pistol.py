@@ -22,7 +22,7 @@ class Pistol:
 
     def interaction(self):
         i = self.game.inventory.get_inventory_space_index()
-        if i == -1:
+        if i is None or i == -1:
             return
         self.game.inventory.slots[i] = PistolItem()
         self.game.ground_items.remove(self)

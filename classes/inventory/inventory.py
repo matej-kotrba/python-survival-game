@@ -8,7 +8,6 @@ from classes.weapons.shotgun import ShotgunItem
 class Inventory:
     size = (300, 50)
     pos = (0, 0)
-    slots = [PistolItem(), KnifeItem(), ShotgunItem(), None, None, None]
     selected_slot = 0
     tile_size = 70
     tile_gap = 2
@@ -27,6 +26,7 @@ class Inventory:
     def __init__(self, game):
         self.game = game
         self.surface = game.window
+        self.slots = [PistolItem(), KnifeItem(), ShotgunItem(), None, None, None]
         self.ammo = {
             "light": 100,
             "medium": 10,
