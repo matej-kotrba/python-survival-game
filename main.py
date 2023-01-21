@@ -15,6 +15,8 @@ from classes.enemies.wave import Wave
 from functions.angle import get_angle
 from functions.math import get_distance
 import random
+import heapq
+import math
 
 pygame.init()
 
@@ -193,6 +195,9 @@ class Game:
 
         self.death_screen_surface = pygame.surface.Surface(self.window.get_size(), pygame.SRCALPHA, 32)
         self.death_screen_surface.convert_alpha()
+
+        #IMPLEMENTING PATH FINDING GRAPH
+        self.graph = Graph(self)
 
     def draw(self):
         self.closest_item = None
@@ -481,6 +486,94 @@ class Game:
         self.coins.remove(coin)
         return False
 
+
+class PriorityQueue:
+    def __init__(self):
+        self._queue = []
+        self._index = 0
+
+    def put(self, item, priority):
+        heapq.heappush(self._queue, (priority, self._index, item))
+        self._index += 1
+
+    def get(self):
+        return heapq.heappop(self._queue)[-1]
+
+    def empty(self):
+        return not self._queue
+
+
+class Node:
+    def __init__(self, x, y):
+        self.nodes = []
+        self.x = x
+        self.y = y
+
+
+class Graph:
+    def __init__(self, game):
+        self.map = []
+        self.max_length = game.MAP_TILES_LENGTH
+        for i in range(len(game.map)):
+            self.map.append([])
+            for k in range(len(game.map[i])):
+                self.map[i].append(Node(i, k))
+        for i in range(len(game.map)):
+            for k in range(len(game.map[i])):
+                if self.check_index_range(k - 1) and game.map[i][k - 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i][k - 1], 1))
+                if self.check_index_range(k + 1) and game.map[i][k + 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i][k + 1], 1))
+                if self.check_index_range(i - 1) and game.map[i - 1][k] == 0:
+                    self.map[i][k].nodes.append((self.map[i - 1][k], 1))
+                if self.check_index_range(i + 1) and game.map[i + 1][k] == 0:
+                    self.map[i][k].nodes.append((self.map[i + 1][k], 1))
+                if self.check_index_range(k - 1) and self.check_index_range(i - 1) and game.map[i][k - 1] == 0 and game.map[i - 1][k] == 0 and game.map[i - 1][k - 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i - 1][k - 1], math.sqrt(2)))
+                if self.check_index_range(k + 1) and self.check_index_range(i - 1) and game.map[i][k + 1] == 0 and game.map[i - 1][k] == 0 and game.map[i - 1][k + 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i - 1][k + 1], math.sqrt(2)))
+                if self.check_index_range(k + 1) and self.check_index_range(i + 1) and game.map[i][k + 1] == 0 and game.map[i + 1][k] == 0 and game.map[i + 1][k + 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i + 1][k + 1], math.sqrt(2)))
+                if self.check_index_range(k - 1) and self.check_index_range(i + 1) and game.map[i][k - 1] == 0 and game.map[i + 1][k] == 0 and game.map[i + 1][k - 1] == 0:
+                    self.map[i][k].nodes.append((self.map[i + 1][k - 1], math.sqrt(2)))
+
+    def check_index_range(self, index):
+        return 0 <= index < self.max_length
+
+    def neighbors(self, node):
+        # new_neighbours = []
+        # for item, _ in node.nodes:
+        #     new_neighbours.append(item)
+        # return new_neighbours
+        return node.nodes
+
+    def A_star(self, start, goal):
+        # Create a priority queue for frontier nodes
+        frontier = PriorityQueue()
+        frontier.put(start, 0)
+        # Create a dictionary to store the cost of each node
+        cost_so_far = {start: 0}
+        # Create a dictionary to store the came_from value for each node
+        came_from = {start: None}
+
+        while not frontier.empty():
+            current = frontier.get()
+
+            if current == goal:
+                break
+
+            for next_node, cost in self.neighbors(current):
+                # new_cost = cost_so_far[current] + graph.cost(current, next_node)
+                new_cost = cost_so_far[current] + cost
+                if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
+                    cost_so_far[next_node] = new_cost
+                    priority = new_cost + math.sqrt(
+                        (goal.x - next_node.x) ** 2 + (goal.y - next_node.y) ** 2)  # heuristic(goal, next_node)
+                    frontier.put(next_node, priority)
+                    came_from[next_node] = current
+
+        # return came_from, cost_so_far
+        return came_from
 
 if __name__ == "__main__":
     game = Game(1000, 1000, 60)

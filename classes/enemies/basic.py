@@ -8,45 +8,6 @@ import os
 import random
 import math
 
-class Node:
-    def __init__(self):
-        self.nodes = []
-
-
-class Graph:
-    def __init__(self, game):
-        self.map = []
-        self.max_length = game.MAP_TILES_LENGTH
-        for i in range(len(game.map)):
-            self.map.append([])
-            for k in range(len(game.map[i])):
-                self.map[i].append(Node())
-        for i in range(len(game.map)):
-            for k in range(len(game.map[i])):
-                if self.check_index_range(k - 1) and game.map[i][k - 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i][k - 1], 1))
-                if self.check_index_range(k + 1) and game.map[i][k + 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i][k + 1], 1))
-                if self.check_index_range(i - 1) and game.map[i - 1][k] == 0:
-                    self.map[i][k].nodes.append((self.map[i - 1][k], 1))
-                if self.check_index_range(i + 1) and game.map[i + 1][k] == 0:
-                    self.map[i][k].nodes.append((self.map[i + 1][k], 1))
-                if self.check_index_range(k - 1) and self.check_index_range(i - 1) and game.map[i][k - 1] == 0 and game.map[i - 1][k] == 0 and game.map[i - 1][k - 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i - 1][k - 1], math.sqrt(2)))
-                if self.check_index_range(k + 1) and self.check_index_range(i - 1) and game.map[i][k + 1] == 0 and game.map[i - 1][k] == 0 and game.map[i - 1][k + 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i - 1][k + 1], math.sqrt(2)))
-                if self.check_index_range(k + 1) and self.check_index_range(i + 1) and game.map[i][k + 1] == 0 and game.map[i + 1][k] == 0 and game.map[i + 1][k + 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i + 1][k + 1], math.sqrt(2)))
-                if self.check_index_range(k - 1) and self.check_index_range(i + 1) and game.map[i][k - 1] == 0 and game.map[i + 1][k] == 0 and game.map[i + 1][k - 1] == 0:
-                    self.map[i][k].nodes.append((self.map[i + 1][k - 1], math.sqrt(2)))
-
-    def check_index_range(self, index):
-        return 0 <= index < self.max_length
-
-    def neighbours(self, node):
-        return node.nodes
-
-
 class Enemy:
     def __init__(self, game, space, radius, pos):
         self.game = game
@@ -65,6 +26,30 @@ class Enemy:
 
         self.health_bar = pygame.surface.Surface((120, 30))
         self.health_bar_size = (120, 30)
+
+        # IMPLEMENTING PATH FINDING
+        # self.graph = graph
+        self.game.graph.A_star(
+            self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
+                round(self.body.position[1] // self.game.TILE_SIZE)],
+            self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
+                round(self.game.player.body.position[1] // self.game.TILE_SIZE)]
+        )
+        # print(self.game.graph.A_star(
+        #     self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
+        #         round(self.body.position[1] // self.game.TILE_SIZE)],
+        #     self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
+        #         round(self.game.player.body.position[1] // self.game.TILE_SIZE)]
+        # ))
+        self.path = []
+
+    def create_path(self):
+        self.game.graph.A_star(
+            self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
+                round(self.body.position[1] // self.game.TILE_SIZE)],
+            self.game.graph.map[round(self.game.player.body.position[0] // self.game.TILE_SIZE)][
+                round(self.game.player.body.position[1] // self.game.TILE_SIZE)]
+        )
 
     def update(self, game):
         self.rect.center = game.get_position_by_player(self.body.position)
