@@ -86,10 +86,12 @@ class MediumBullet(Bullet):
         super().__init__(game, BULLETS_TYPES["medium"], pos, angle, owner)
 
 class KnifeAttack:
-    def __init__(self, game, pos, angle, owner):
+    def __init__(self, game, body, angle, owner, attack_time):
         self.game = game
+        self.sticked_body = body
+        self.pos = (0, 0)
         self.body = pymunk.Body()
-        self.body.position = pos
+        self.body.position = self.pos
         # self.body.filter = pymunk.ShapeFilter(categories=self.game.collision_types["PROJECTILE"], mask=0b11110)
         self.size = (90, 30)
         self.damage = 5
@@ -97,6 +99,15 @@ class KnifeAttack:
         self.xs = -math.cos(angle)
         self.ys = -math.sin(angle)
         self.s = 10
+
+        self.reverse_counter = 0
+        self.reverse_counter_breakpoint = attack_time / 2
+        self.is_reversing = False
+
+        self.initial_angle = get_angle((self.game.player_start_cord["x"] + self.xs,
+                                      self.game.player_start_cord["y"] + self.ys),
+                                     (self.game.player_start_cord["x"],
+                                      self.game.player_start_cord["y"]))
 
         self.shape = pymunk.Poly.create_box(self.body, self.size)
         self.shape.collision_type = game.collision_types["PROJECTILE"]
@@ -116,15 +127,21 @@ class KnifeAttack:
         self.image = pygame.transform.scale(self.image, self.size)
         rotated_image = pygame.transform.rotate\
             (self.image,
-             -math.degrees(get_angle((self.game.player_start_cord["x"] + self.xs,
-                                      self.game.player_start_cord["y"] + self.ys),
-                                     (self.game.player_start_cord["x"],
-                                      self.game.player_start_cord["y"]))) + 180)
+             -math.degrees(self.initial_angle) + 180)
         new_rect = rotated_image.get_rect(center=self.rect.center)
         self.game.window.blit(rotated_image, new_rect)
 
     def movement(self):
-        self.body.position = (self.body.position[0] + self.xs * self.s, self.body.position[1] + self.ys * self.s)
+        if self.reverse_counter >= self.reverse_counter_breakpoint and not self.is_reversing:
+            self.is_reversing = True
+            self.reverse_counter = 0
+            self.xs *= -1
+            self.ys *= -1
+        elif self.reverse_counter >= self.reverse_counter_breakpoint and self.is_reversing:
+            self.game.projectiles.remove(self)
+        self.pos = (self.pos[0] + self.xs * self.s, self.pos[1] + self.ys * self.s)
+        self.body.position = (self.sticked_body.position[0] + self.pos[0], self.sticked_body.position[1] + self.pos[1])
+        self.reverse_counter += 1
 
     def range_despawn(self):
         if get_distance(self.body.position, self.game.player.body.position) > self.game.player_start_cord["x"] + 250:

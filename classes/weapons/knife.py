@@ -45,17 +45,28 @@ class KnifeItem(Knife):
         self.original_image = pygame.image.load(os.path.join("imgs", "knife.png"))
         self.image = pygame.transform.scale(self.original_image, self.size)
 
-        self.move_knife = (0, 0)
+        self.is_attacking = False
+        self.attack_counter = 0
+        self.attack_breakpoint = 20
 
     def attack_event(self, game, pos):
-        game.projectiles.append(KnifeAttack(game, pos, game.mouse_angle, "player"))
+        if self.is_attacking:
+            return
+        self.is_attacking = True
+        game.projectiles.append(KnifeAttack(game, game.player.body, game.mouse_angle, "player", self.attack_breakpoint))
 
     def show_ammo(self, game):
-        self.ammo_surface.fill((0, 0, 0, 0))
-        text = self.font.render(f" ∞ / ∞", False, (255, 255, 255))
-        rect = text.get_rect()
-        self.ammo_surface.blit(text, (self.ammo_surface_size[0] / 2 - rect.width / 2, self.ammo_surface_size[1] / 2 - rect.height / 2))
-        game.window.blit(self.ammo_surface, (0, 150))
+        # Potřeboval jsem funkci která běží každý snímek
+        if self.is_attacking:
+            self.attack_counter += 1
+            if self.attack_counter >= self.attack_breakpoint:
+                self.is_attacking = False
+                self.attack_counter = 0
+        # self.ammo_surface.fill((0, 0, 0, 0))
+        # text = self.font.render(f" ∞ / ∞", False, (255, 255, 255))
+        # rect = text.get_rect()
+        # self.ammo_surface.blit(text, (self.ammo_surface_size[0] / 2 - rect.width / 2, self.ammo_surface_size[1] / 2 - rect.height / 2))
+        # game.window.blit(self.ammo_surface, (0, 150))
 
     def reload(self, game):
         pass
