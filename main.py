@@ -143,11 +143,12 @@ class Game:
             for k in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
                 if random.random() > 0.7:
                     index = random.randrange(len(self.MAP_STRUCTURES))
-                    for j in range(len(self.MAP_STRUCTURES[index])):
-                        for g in range(len(self.MAP_STRUCTURES[0][j])):
+                    structure = self.rotate_map_structure(self.MAP_STRUCTURES[index])
+                    for j in range(len(structure)):
+                        for g in range(len(structure[j])):
                             if i + j > self.MAP_TILES_LENGTH - 1 or k + g > self.MAP_TILES_LENGTH - 1:
                                 continue
-                            symbol = self.MAP_STRUCTURES[index][j][g]
+                            symbol = structure[j][g]
                             self.map[i + j][k + g] = symbol
                             if symbol == 1:
                                 self.structures.append(Wall(self, self.space, ((i + j) * self.TILE_SIZE + self.TILE_SIZE / 2,
@@ -386,21 +387,26 @@ class Game:
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \
                pos[1]
 
-    # def item_projectile_hit(self, arbiter, space, data, array, callback):
-    #     '''
-    #     :param arbiter: objets which collided
-    #     :param space: space
-    #     :param data: data
-    #     :param callback: function which will apply on item of the array which collided
-    #     :param array: array of items we want to go through, shape must be included
-    #     :return:
-    #     '''
-    #     shapeA, shapeB = arbiter.shapes
-    #     for item in array:
-    #         if item.shape == shapeB:
-    #             callback(item, shapeA)
-    #             break
-    #     return False
+    def rotate_map_structure(self, structure):
+        middle_index = (len(structure) - 1) // 2
+        new_structure = []
+        for i in range(len(structure)):
+            new_structure.append([])
+            for k in range(len(structure[i])):
+                new_structure[i].append(0)
+        random_side = random.randrange(4)
+        for i in range(len(structure)):
+            for k in range(len(structure[i])):
+                if structure[i][k] == 1:
+                    if random_side == 0:
+                        new_structure[i][k] = 1
+                    elif random_side == 1:
+                        new_structure[middle_index - k + middle_index][i] = 1
+                    elif random_side == 2:
+                        new_structure[k][middle_index - i + middle_index] = 1
+                    elif random_side == 3:
+                        new_structure[middle_index - k + middle_index][middle_index - i + middle_index] = 1
+        return new_structure
 
     def enemy_projectile_hit(self, arbiter, space, data):
         # lambda item, shape:
