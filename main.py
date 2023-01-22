@@ -11,6 +11,8 @@ from classes.ammo.ammo_box import AmmoBox
 from classes.coin.coin import Coin
 from classes.buy_station.buy_station import BuyStation
 from classes.enemies.wave import Wave
+from classes.weapons.pistol import PistolItem
+from classes.weapons.shotgun import ShotgunItem
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -126,7 +128,7 @@ class Game:
         self.enemies = []
         # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
         # RangeEnemy(self, self.space, 25, (750, 500))
-        self.spawners = [Spawn(self, (400, 800))]
+        self.spawners = [Spawn(self, (400, 800)), Spawn(self, (2500, 250)), Spawn(self, (2800, 2800)), Spawn(self, (1200, 2800)), Spawn(self, (3000, 1500))]
         self.structures = [Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, -self.TILE_SIZE / 2),
                                 (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE)),
                            Wall(self, self.space, (-self.TILE_SIZE / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
@@ -143,7 +145,7 @@ class Game:
                 self.map[i].append(0)
         for i in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
             for k in range(0, self.MAP_TILES_LENGTH, self.MAP_STRUCTURES_LENGTH):
-                if random.random() > 0.7:
+                if random.random() > 0.65:
                     index = random.randrange(len(self.MAP_STRUCTURES))
                     structure = self.rotate_map_structure(self.MAP_STRUCTURES[index])
                     for j in range(len(structure)):
@@ -157,11 +159,17 @@ class Game:
                                                                                (k + g) * self.TILE_SIZE + self.TILE_SIZE / 2),
                                                             (self.TILE_SIZE, self.TILE_SIZE)))
 
-        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
-                             AmmoBox(self, (300, 500), "medium", 10),
-                             BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
+        self.ground_items = [Knife(self, (self.player_start_cord["x"] + 100, self.player_start_cord["y"])),
+                             BuyStation(self, (1800, 2500), PistolItem(), 45, True, False),
+                             BuyStation(self, (700, 200), ShotgunItem(), 100, True, False),
+                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 100, False, True),
+                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 100, False, True)]
+        # self.ground_items = [Knife()]
+        # self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
+        #                      AmmoBox(self, (300, 500), "medium", 10),
+        #                      BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
         self.projectiles = []
-        self.coins = [Coin(self, (800, 500))]
+        self.coins = []
 
         self.closest_item = None
         # closest_item = {"item": weapon, "range": int}
@@ -375,7 +383,7 @@ class Game:
         self.enemies = []
         # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
         # RangeEnemy(self, self.space, 25, (750, 500))
-        self.spawners = [Spawn(self, (400, 800))]
+        self.spawners = [Spawn(self, (400, 800)), Spawn(self, (2500, 250)), Spawn(self, (2800, 2800)), Spawn(self, (1200, 2800)), Spawn(self, (3000, 1500))]
         self.structures = [Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, -self.TILE_SIZE / 2),
                                 (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE)),
                            Wall(self, self.space, (-self.TILE_SIZE / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH / 2),
@@ -446,10 +454,6 @@ class Game:
         return new_structure
 
     def enemy_projectile_hit(self, arbiter, space, data):
-        # lambda item, shape:
-        # for enemy in self.enemies:
-        #     print("asd")
-        # self.projectiles.remove(item))
         shapeA, shapeB = arbiter.shapes
         bullet = None
         for projectile in self.projectiles:
@@ -474,7 +478,7 @@ class Game:
             if projectile.shape == shapeB:
                 bullet = projectile
                 break
-        if bullet.bullet_owner != "enemy":
+        if bullet is None or bullet.bullet_owner != "enemy":
             return False
         self.player.hp -= bullet.damage
         self.projectiles.remove(bullet)

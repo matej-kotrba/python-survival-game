@@ -18,7 +18,7 @@ class Player:
     PLAYER_SPEED_LIMIT = 350
 
     max_hp = 50
-    hp = 1
+    hp = 50
 
     health_bar_size = (350, 40)
     health_bar = pygame.surface.Surface(health_bar_size)

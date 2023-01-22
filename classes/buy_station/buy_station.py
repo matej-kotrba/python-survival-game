@@ -25,10 +25,10 @@ class BuyStation:
 
     def update(self):
         self.rect.center = self.game.get_position_by_player(self.pos)
-        self.game.window.blit(self.image, self.rect)
+        self.game.window.blit(self.shut_image if self.used and self.close_after_buy else self.image, self.rect)
 
     def interaction(self):
-        if (self.used and self.close_after_buy and self.game.inventory.coins >= self.cost) or self.game.inventory.coins >= self.cost:
+        if (not self.close_after_buy or not self.used) and self.game.inventory.coins >= self.cost:
             if self.consumable:
                 self.item_to_buy.interaction()
                 self.game.inventory.coins -= self.cost

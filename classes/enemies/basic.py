@@ -47,7 +47,7 @@ class Enemy:
         #         round(self.body.position[1] // self.game.TILE_SIZE)]])
         self.path = []
         self.create_path()
-        print(len(self.path))
+        # print(len(self.path))
 
     def create_path(self):
         routes = self.game.graph.A_star(
@@ -92,7 +92,8 @@ class Enemy:
 
     def __del__(self):
         if random.random() > 0.6:
-            self.game.ground_items.append(AmmoBox(self.game, self.body.position, "medium", random.randrange(1, 6)))
+            ammo_type = ["light", "medium"][random.randrange(2)]
+            self.game.ground_items.append(AmmoBox(self.game, self.body.position, ammo_type, random.randrange(1, 6)))
         for i in range(4):
             self.game.coins.append(Coin(self.game,
                                         (self.body.position.x + 100 * (random.random() - 0.5),

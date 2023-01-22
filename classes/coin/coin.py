@@ -8,7 +8,7 @@ import pymunk.pygame_util
 class Coin:
 
     radius = 20
-    value = 10
+    value = 5
 
     original_image = pygame.image.load(os.path.join("imgs", "coin.png"))
     image = pygame.transform.scale(original_image, (radius * 2, radius * 2))

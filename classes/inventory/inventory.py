@@ -26,10 +26,10 @@ class Inventory:
     def __init__(self, game):
         self.game = game
         self.surface = game.window
-        self.slots = [PistolItem(), KnifeItem(), ShotgunItem(), None, None, None]
+        self.slots = [None, None, None, None, None, None]
         self.ammo = {
-            "light": 100,
-            "medium": 10,
+            "light": 0,
+            "medium": 0,
             "heavy": 0
         }
         self.coins = 100
@@ -45,6 +45,12 @@ class Inventory:
         [pygame.draw.rect(self.surface, self.tile_selected_color if i == self.selected_slot else self.tile_color,
                           pygame.Rect(2 + i * (self.tile_size + self.tile_gap), 2, self.tile_size, self.tile_size))
          for i in range(len(self.slots))]
+
+        self.surface.blit(self.coin_image, (self.game.window.get_width() - 60, 40))
+        text = self.font_outline.render(f"{self.coins}", True, (252, 189, 15))
+        rect = text.get_rect()
+        rect.center = (self.game.window.get_width() - 75 - 10 * (len(str(self.coins)) - 1), 72)
+        self.surface.blit(text, rect)
 
         # Render items in slots
         for index, item in enumerate(self.slots):
@@ -80,11 +86,7 @@ class Inventory:
                 self.surface.blit(text_outline, rect_outline)
                 self.surface.blit(text, rect)
 
-            self.surface.blit(self.coin_image, (self.game.window.get_width() - 60, 40))
-            text = self.font_outline.render(f"{self.coins}", True, (252, 189, 15))
-            rect = text.get_rect()
-            rect.center = (self.game.window.get_width() - 75 - 10 * (len(str(self.coins)) - 1), 72)
-            self.surface.blit(text, rect)
+
 
     def get_inventory_space_index(self):
         for i in range(len(self.slots)):
