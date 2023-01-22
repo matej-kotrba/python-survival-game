@@ -206,7 +206,8 @@ class Game:
         self.death_screen_surface = pygame.surface.Surface(self.window.get_size(), pygame.SRCALPHA, 32)
         self.death_screen_surface.convert_alpha()
 
-        menu_surface = pygame.surface.Surface(())
+        self.in_menu = True
+        self.menu_surface = pygame.surface.Surface(self.window.get_size())
 
         #IMPLEMENTING PATH FINDING GRAPH
         self.graph = Graph(self)
@@ -347,31 +348,57 @@ class Game:
                                          (self.player_start_cord["x"], self.player_start_cord["y"]))
             self.point = pygame.mouse.get_pos()
 
-            if not self.is_paused:
-                self.player.move_player(self.inputs)
-                self.draw()
-                self.space.step(self.dt)
-                self.clock.tick(self.fps)
-            else:
-                self.death_screen_surface.fill((0, 0, 0, 1))
+            if self.in_menu:
+                self.menu_surface.fill((0, 0, 0))
+                menu_rect = self.menu_surface.get_rect()
                 font = pygame.font.Font(None, 80)
-                text = font.render("You died", True, (255, 0, 0))
-                text_rect = text.get_rect()
-                text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2)
-                self.death_screen_surface.blit(text, text_rect)
-                restart_button = pygame.Rect(self.window.get_width() / 2, self.window.get_height() / 2 + 100, 0, 0).inflate(250, 90)
-                self.window.fill((33, 33, 33) if not restart_button.collidepoint(self.point) else (255, 255, 255), restart_button)
-                restart_button_text = self.font.render("Restart", True, (255, 255, 255) if not restart_button.collidepoint(self.point) else (33, 33, 33))
-                restart_button_text_rect = restart_button_text.get_rect()
-                restart_button_text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
-                self.window.blit(restart_button_text, restart_button_text_rect)
-                # restart_button_rect = restart_button.get_rect()
-                # restart_button_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
-                # self.death_screen_surface.blit(restart_button, restart_button_rect)
-                self.window.blit(self.death_screen_surface, (0, 0))
+                text_title = font.render("Get out of the Wooden House", True, (255, 255, 255))
+                text_title_rect = text_title.get_rect()
+                text_title_rect.center = (menu_rect.width / 2, menu_rect.height / 2 - 250)
+                self.menu_surface.blit(text_title, text_title_rect)
+                play_button = pygame.Rect(self.window.get_width() / 2, self.window.get_height() / 2 + 100, 0,
+                                             0).inflate(250, 90)
+                self.menu_surface.fill((33, 33, 33) if not play_button.collidepoint(self.point) else (255, 255, 255),
+                                 play_button)
+                play_button_text = self.font.render("Play", True,
+                                                       (255, 255, 255) if not play_button.collidepoint(
+                                                           self.point) else (33, 33, 33))
+                play_button_text_rect = play_button_text.get_rect()
+                play_button_text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                self.menu_surface.blit(play_button_text, play_button_text_rect)
+                # play_button_rect = play_button.get_rect()
+                # play_button_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                # self.menu_surface.blit(play_button, play_button_rect)
+                self.window.blit(self.menu_surface, (0, 0))
 
-                if restart_button.collidepoint(self.point) and pygame.mouse.get_pressed()[0]:
-                    self.restart_game()
+                if play_button.collidepoint(self.point) and pygame.mouse.get_pressed()[0]:
+                    self.in_menu = False
+            else:
+                if not self.is_paused:
+                    self.player.move_player(self.inputs)
+                    self.draw()
+                    self.space.step(self.dt)
+                    self.clock.tick(self.fps)
+                else:
+                    self.death_screen_surface.fill((0, 0, 0, 1))
+                    font = pygame.font.Font(None, 80)
+                    text = font.render("You died", True, (255, 0, 0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2)
+                    self.death_screen_surface.blit(text, text_rect)
+                    restart_button = pygame.Rect(self.window.get_width() / 2, self.window.get_height() / 2 + 100, 0, 0).inflate(250, 90)
+                    self.window.fill((33, 33, 33) if not restart_button.collidepoint(self.point) else (255, 255, 255), restart_button)
+                    restart_button_text = self.font.render("Restart", True, (255, 255, 255) if not restart_button.collidepoint(self.point) else (33, 33, 33))
+                    restart_button_text_rect = restart_button_text.get_rect()
+                    restart_button_text_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                    self.window.blit(restart_button_text, restart_button_text_rect)
+                    # restart_button_rect = restart_button.get_rect()
+                    # restart_button_rect.center = (self.window.get_width() / 2, self.window.get_height() / 2 + 100)
+                    # self.death_screen_surface.blit(restart_button, restart_button_rect)
+                    self.window.blit(self.death_screen_surface, (0, 0))
+
+                    if restart_button.collidepoint(self.point) and pygame.mouse.get_pressed()[0]:
+                        self.restart_game()
 
             pygame.display.flip()
 

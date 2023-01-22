@@ -22,7 +22,8 @@ class Medkit:
         self.game.player.hp += self.value
         if self.game.player.hp > self.game.player.max_hp:
             self.game.player.hp = self.game.player.max_hp
-        self.game.ground_items.remove(self)
+        if self in self.game.ground_items:
+            self.game.ground_items.remove(self)
 
     def update(self):
         self.rect.center = self.game.get_position_by_player(self.pos)
