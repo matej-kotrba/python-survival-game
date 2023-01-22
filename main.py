@@ -539,6 +539,8 @@ class Game:
             if shapeA == enemy.shape:
                 enemy_object = enemy
                 break
+        if enemy_object is None:
+            return False
         self.player.hp -= enemy_object.collision_damage
         self.player.after_damage_immunity()
         return True
