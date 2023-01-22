@@ -13,6 +13,7 @@ from classes.buy_station.buy_station import BuyStation
 from classes.enemies.wave import Wave
 from classes.weapons.pistol import PistolItem
 from classes.weapons.shotgun import ShotgunItem
+from classes.buy_station.medkit import Medkit
 
 from functions.angle import get_angle
 from functions.math import get_distance
@@ -162,8 +163,9 @@ class Game:
         self.ground_items = [Knife(self, (self.player_start_cord["x"] + 100, self.player_start_cord["y"])),
                              BuyStation(self, (1800, 2500), PistolItem(), 45, True, False),
                              BuyStation(self, (700, 200), ShotgunItem(), 100, True, False),
-                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 100, False, True),
-                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 100, False, True)]
+                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 15, False, True),
+                             BuyStation(self, (2100, 400), AmmoBox(self, (0, 0), "light", 3), 15, False, True),
+                             BuyStation(self, (1100, 1400), Medkit(self, (0, 0)), 15, False, True)]
         # self.ground_items = [Knife()]
         # self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
         #                      AmmoBox(self, (300, 500), "medium", 10),
@@ -203,6 +205,8 @@ class Game:
 
         self.death_screen_surface = pygame.surface.Surface(self.window.get_size(), pygame.SRCALPHA, 32)
         self.death_screen_surface.convert_alpha()
+
+        menu_surface = pygame.surface.Surface(())
 
         #IMPLEMENTING PATH FINDING GRAPH
         self.graph = Graph(self)
@@ -374,7 +378,7 @@ class Game:
     def restart_game(self):
 
         f = open("scoreboard.txt", "a")
-        f.write(f"Player made it into Wave {self.wave.number}")
+        f.write(f"Player made it into Wave {self.wave.number}\n")
         f.close()
 
         self.inventory = Inventory(self)
@@ -416,11 +420,14 @@ class Game:
                                     Wall(self, self.space, ((i + j) * self.TILE_SIZE + self.TILE_SIZE / 2,
                                                             (k + g) * self.TILE_SIZE + self.TILE_SIZE / 2),
                                          (self.TILE_SIZE, self.TILE_SIZE)))
-        self.ground_items = [Pistol(self, (500, 500)), Pistol(self, (800, 400)), Knife(self, (200, 200)),
-                             AmmoBox(self, (300, 500), "medium", 10),
-                             BuyStation(self, (800, 600), AmmoBox(self, (0, 0), "medium", 10), 15, True, True)]
+        self.ground_items = [Knife(self, (self.player_start_cord["x"] + 100, self.player_start_cord["y"])),
+                             BuyStation(self, (1800, 2500), PistolItem(), 45, True, False),
+                             BuyStation(self, (700, 200), ShotgunItem(), 100, True, False),
+                             BuyStation(self, (400, 1800), AmmoBox(self, (0, 0), "medium", 10), 15, False, True),
+                             BuyStation(self, (2100, 400), AmmoBox(self, (0, 0), "light", 3), 15, False, True),
+                             BuyStation(self, (1100, 1400), Medkit(self, (0, 0)), 15, False, True)]
         self.projectiles = []
-        self.coins = [Coin(self, (800, 500))]
+        self.coins = []
 
         self.wave = Wave(self, 1)
 
