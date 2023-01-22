@@ -94,7 +94,7 @@ class Enemy:
         if random.random() > 0.6:
             ammo_type = ["light", "medium"][random.randrange(2)]
             self.game.ground_items.append(AmmoBox(self.game, self.body.position, ammo_type, random.randrange(1, 6)))
-        for i in range(4):
+        for i in range(2):
             self.game.coins.append(Coin(self.game,
                                         (self.body.position.x + 100 * (random.random() - 0.5),
                                          self.body.position.y + (100 * random.random() * 0.5))))

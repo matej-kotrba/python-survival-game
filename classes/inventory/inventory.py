@@ -32,7 +32,7 @@ class Inventory:
             "medium": 0,
             "heavy": 0
         }
-        self.coins = 100
+        self.coins = 10
         self.ammo_surface = pygame.surface.Surface((180, 60))
         self.coins_surface = pygame.surface.Surface((60, 60))
         self.font = pygame.font.Font(None, 30)
