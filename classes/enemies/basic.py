@@ -9,7 +9,6 @@ import random
 import math
 from functions.math import get_xys, get_distance
 
-
 class Enemy:
     def __init__(self, game, space, radius, pos):
         self.game = game
@@ -50,7 +49,6 @@ class Enemy:
         self.create_path()
         # print(len(self.path))
 
-    # Path creation for specific enemy
     def create_path(self):
         routes = self.game.graph.A_star(
             self.game.graph.map[round(self.body.position[0] // self.game.TILE_SIZE)][
@@ -65,7 +63,6 @@ class Enemy:
             node = routes[node]
         self.path.pop()
 
-    # Moving on path until there is no other Node to move into
     def move(self):
         # for item in self.path:
         #     x,y = self.game.get_position_by_player((item.x * self.game.TILE_SIZE,
@@ -93,6 +90,7 @@ class Enemy:
         x, y = game.get_position_by_player(self.body.position)
         game.window.blit(self.health_bar, (x - 60, y - self.radius * 2 - 10))
 
+    # Call on delete
     def __del__(self):
         if random.random() > 0.6:
             ammo_type = ["light", "medium"][random.randrange(2)]
@@ -105,7 +103,6 @@ class Enemy:
 
     def special_attack(self):
         pass
-
 
 class BasicEnemy(Enemy):
     color = (255, 250, 0, 100)

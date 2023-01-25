@@ -40,8 +40,6 @@ class Game:
     WALL_MAP_NUMBER = 1
     EMPTY_MAP_NUMBER = 0
     MAP_STRUCTURES_LENGTH = 9
-
-    # Map objects which can be spawned on map
     MAP_STRUCTURES = [
         [
             [0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -129,8 +127,8 @@ class Game:
         self.player = Player(self, self.space, (self.player_start_cord["x"], self.player_start_cord["y"]))
 
         self.enemies = []
-
-        # place SPAWNERS and STRUCTURES on the map
+        # BasicEnemy(self, self.space, 40, (300, 300)), BasicEnemy(self, self.space, 40, (500, 300)),
+        # RangeEnemy(self, self.space, 25, (750, 500))
         self.spawners = [Spawn(self, (400, 800)), Spawn(self, (2500, 250)), Spawn(self, (2800, 2800)), Spawn(self, (1200, 2800)), Spawn(self, (3000, 1500))]
         self.structures = [Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, -self.TILE_SIZE / 2),
                                 (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE)),
@@ -140,7 +138,7 @@ class Game:
                                 (self.TILE_SIZE, self.TILE_SIZE * self.MAP_TILES_LENGTH)),
                            Wall(self, self.space, (self.TILE_SIZE * self.MAP_TILES_LENGTH / 2, self.TILE_SIZE * self.MAP_TILES_LENGTH + self.TILE_SIZE / 2),
                                 (self.TILE_SIZE * self.MAP_TILES_LENGTH, self.TILE_SIZE))]
-        # define map list and fill it with rects, then spawn random MAP_STRUCTURES on it
+
         self.map = []
         for i in range(self.MAP_TILES_LENGTH):
             self.map.append([])
@@ -262,7 +260,6 @@ class Game:
         for item in self.projectiles:
             item.draw()
 
-        # Find the closest item to player
         if self.closest_item is not None:
             surface_width = self.action_key_surface.get_width()
             surface_height = self.action_key_surface.get_height()
@@ -298,7 +295,6 @@ class Game:
     def run(self):
 
         while self.is_running:
-            # Go through keys that were pressed
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_running = False
@@ -352,7 +348,6 @@ class Game:
                                          (self.player_start_cord["x"], self.player_start_cord["y"]))
             self.point = pygame.mouse.get_pos()
 
-            # Menu screen
             if self.in_menu:
                 self.menu_surface.fill((0, 0, 0))
                 menu_rect = self.menu_surface.get_rect()
@@ -378,15 +373,12 @@ class Game:
 
                 if play_button.collidepoint(self.point) and pygame.mouse.get_pressed()[0]:
                     self.in_menu = False
-            # If not in menu
             else:
-                # If game is on
                 if not self.is_paused:
                     self.player.move_player(self.inputs)
                     self.draw()
                     self.space.step(self.dt)
                     self.clock.tick(self.fps)
-                # If game is paused
                 else:
                     self.death_screen_surface.fill((0, 0, 0, 1))
                     font = pygame.font.Font(None, 80)
@@ -410,7 +402,6 @@ class Game:
 
             pygame.display.flip()
 
-    # Function for restarting game
     def restart_game(self):
 
         f = open("scoreboard.txt", "a")
@@ -471,12 +462,10 @@ class Game:
         self.is_paused = False
         self.graph = Graph(self)
 
-    # Function will will accept position and return position to player
     def get_position_by_player(self, pos):
         return self.player_start_cord["x"] - self.camera["x"] + pos[0], self.player_start_cord["y"] - self.camera["y"] + \
                pos[1]
 
-    # Function which will rotate MAP_STRUCTURE to random angle by 90°
     def rotate_map_structure(self, structure):
         middle_index = (len(structure) - 1) // 2
         new_structure = []
@@ -498,7 +487,6 @@ class Game:
                         new_structure[middle_index - k + middle_index][middle_index - i + middle_index] = 1
         return new_structure
 
-    # Function for enemy getting hit by projectile
     def enemy_projectile_hit(self, arbiter, space, data):
         shapeA, shapeB = arbiter.shapes
         bullet = None
@@ -517,7 +505,6 @@ class Game:
         self.projectiles.remove(bullet)
         return False
 
-    # Function for player getting hit by projectile
     def player_projectile_hit(self, arbiter, space, data):
         shapeA, shapeB = arbiter.shapes
         bullet = None
@@ -531,7 +518,6 @@ class Game:
         self.projectiles.remove(bullet)
         return False
 
-    # Function for structure getting hit by projectile
     def structure_projectile_hit(self, arbiter, space, data):
         shapeA, shapeB = arbiter.shapes
         bullet = None
@@ -544,7 +530,6 @@ class Game:
         self.projectiles.remove(bullet)
         return False
 
-    # Function for enemy getting hit by projectile
     def enemy_player_hit(self, arbiter, space, data):
         if self.player.immune:
             return True
@@ -560,7 +545,6 @@ class Game:
         self.player.after_damage_immunity()
         return True
 
-    # Function for coin getting hit by player
     def player_coin_hit(self, arbiter, space, data):
         shapeA, shapeB = arbiter.shapes
         coin = None
@@ -575,7 +559,6 @@ class Game:
         return False
 
 
-# Priority queue for shortest path
 class PriorityQueue:
     def __init__(self):
         self._queue = []
@@ -592,7 +575,6 @@ class PriorityQueue:
         return not self._queue
 
 
-# Tile in graph, has other nodes which can be reached from this position in 8 ways
 class Node:
     def __init__(self, x, y):
         self.nodes = []
@@ -600,7 +582,6 @@ class Node:
         self.y = y
 
 
-# Graph, whole map for nodes
 class Graph:
     def __init__(self, game):
         self.map = []
@@ -631,7 +612,6 @@ class Graph:
     def check_index_range(self, index):
         return 0 <= index < self.max_length
 
-    # Which tiles can be accesed from here
     def neighbors(self, node):
         # new_neighbours = []
         # for item, _ in node.nodes:
@@ -639,7 +619,6 @@ class Graph:
         # return new_neighbours
         return node.nodes
 
-    # A star algorithm making cost of paths and finding the shortest
     def A_star(self, start, goal):
         # Create a priority queue for frontier nodes
         frontier = PriorityQueue()

@@ -38,7 +38,6 @@ class Inventory:
         self.font = pygame.font.Font(None, 30)
         self.font_outline = pygame.font.Font(None, 55)
 
-    # Drawing all important HUD for inventory
     def draw(self):
         pygame.draw.rect(self.surface, (92, 90, 90),
                          pygame.Rect(0, 0, self.tile_size * len(self.slots) + 4 + self.tile_gap * (len(self.slots) - 1),
@@ -87,7 +86,8 @@ class Inventory:
                 self.surface.blit(text_outline, rect_outline)
                 self.surface.blit(text, rect)
 
-    # Checks if any inventory space is empty, if is then return the index of first one
+
+
     def get_inventory_space_index(self):
         for i in range(len(self.slots)):
             if self.slots[i] is None:
